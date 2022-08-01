@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/taylorskalyo/goreader/epub"
 	"golang.org/x/net/html"
@@ -26,6 +27,113 @@ type Container struct {
 			MediaType string `xml:"media-type,attr"`
 		} `xml:"rootfile"`
 	} `xml:"rootfiles"`
+}
+
+type Package struct {
+	XMLName          xml.Name `xml:"package"`
+	Text             string   `xml:",chardata"`
+	Xmlns            string   `xml:"xmlns,attr"`
+	UniqueIdentifier string   `xml:"unique-identifier,attr"`
+	Version          string   `xml:"version,attr"`
+	Metadata         struct {
+		Text       string `xml:",chardata"`
+		Dc         string `xml:"dc,attr"`
+		Identifier struct {
+			Text string `xml:",chardata"`
+			ID   string `xml:"id,attr"`
+		} `xml:"identifier"`
+		Title    string `xml:"title"`
+		Language string `xml:"language"`
+		Creator  struct {
+			Text string `xml:",chardata"`
+			ID   string `xml:"id,attr"`
+		} `xml:"creator"`
+		Meta []struct {
+			Text     string `xml:",chardata"`
+			Refines  string `xml:"refines,attr"`
+			Property string `xml:"property,attr"`
+			Scheme   string `xml:"scheme,attr"`
+			ID       string `xml:"id,attr"`
+		} `xml:"meta"`
+	} `xml:"metadata"`
+	Manifest struct {
+		Text string `xml:",chardata"`
+		Item []struct {
+			Text       string `xml:",chardata"`
+			ID         string `xml:"id,attr"`
+			Href       string `xml:"href,attr"`
+			MediaType  string `xml:"media-type,attr"`
+			Properties string `xml:"properties,attr"`
+		} `xml:"item"`
+	} `xml:"manifest"`
+	Spine struct {
+		Text    string `xml:",chardata"`
+		Toc     string `xml:"toc,attr"`
+		Itemref struct {
+			Text  string `xml:",chardata"`
+			Idref string `xml:"idref,attr"`
+		} `xml:"itemref"`
+	} `xml:"spine"`
+}
+
+type aPackage struct {
+	XMLName          xml.Name `xml:"package"`
+	Text             string   `xml:",chardata"`
+	Xmlns            string   `xml:"xmlns,attr"`
+	UniqueIdentifier string   `xml:"unique-identifier,attr"`
+	Version          string   `xml:"version,attr"`
+	Lang             string   `xml:"lang,attr"`
+	Metadata         struct {
+		Text       string `xml:",chardata"`
+		Dc         string `xml:"dc,attr"`
+		Opf        string `xml:"opf,attr"`
+		Identifier struct {
+			Text   string `xml:",chardata"`
+			ID     string `xml:"id,attr"`
+			Scheme string `xml:"scheme,attr"`
+		} `xml:"identifier"`
+		Meta []struct {
+			Text     string `xml:",chardata"`
+			Refines  string `xml:"refines,attr"`
+			Property string `xml:"property,attr"`
+			Name     string `xml:"name,attr"`
+			Content  string `xml:"content,attr"`
+		} `xml:"meta"`
+		Title     string `xml:"title"`
+		Language  string `xml:"language"`
+		Creator   string `xml:"creator"`
+		Publisher string `xml:"publisher"`
+		Date      string `xml:"date"`
+	} `xml:"metadata"`
+	Manifest struct {
+		Text string `xml:",chardata"`
+		Item []struct {
+			Text       string `xml:",chardata"`
+			ID         string `xml:"id,attr"`
+			Href       string `xml:"href,attr"`
+			MediaType  string `xml:"media-type,attr"`
+			Properties string `xml:"properties,attr"`
+		} `xml:"item"`
+	} `xml:"manifest"`
+	Spine struct {
+		Text                     string `xml:",chardata"`
+		Toc                      string `xml:"toc,attr"`
+		PageProgressionDirection string `xml:"page-progression-direction,attr"`
+		Itemref                  []struct {
+			Text   string `xml:",chardata"`
+			Idref  string `xml:"idref,attr"`
+			Linear string `xml:"linear,attr"`
+		} `xml:"itemref"`
+	} `xml:"spine"`
+	Guide struct {
+		Text      string `xml:",chardata"`
+		Reference struct {
+			Text  string `xml:",chardata"`
+			Type  string `xml:"type,attr"`
+			Title string `xml:"title,attr"`
+			Href  string `xml:"href,attr"`
+		} `xml:"reference"`
+	} `xml:"guide"`
 }
 
 func my_teacher() {
@@ -135,7 +243,7 @@ func my_teacher() {
 const contain_path = "META-INF/container.xml"
 
 func main() {
-	f, err := os.Open("./test.epub")
+	f, err := os.Open("./mybook.epub")
 	if err != nil {
 		return
 	}
@@ -145,18 +253,18 @@ func main() {
 		return
 	}
 
-	fmt.Println(fi.Size())
+	//fmt.Println(fi.Size())
 	z, err := zip.NewReader(f, fi.Size())
 	if err != nil {
 		return
 	}
-	fmt.Println(z)
+	//fmt.Println(z)
 
 	files := make(map[string]*zip.File)
 	for _, ff := range z.File {
 		files[ff.Name] = ff
 	}
-	fmt.Println(files)
+	//fmt.Println(files)
 
 	f2, err := files[contain_path].Open()
 	if err != nil {
@@ -171,6 +279,55 @@ func main() {
 
 	c := new(Container)
 	err = xml.Unmarshal(b.Bytes(), &c)
-	fmt.Println(c.Rootfiles.Rootfile.FullPath)
+	full_path := c.Rootfiles.Rootfile.FullPath
+	fmt.Println("FULL ", full_path)
+	dir := strings.Split(full_path, "/")[0]
+
+	f3, err := files[full_path].Open()
+	if err != nil {
+		return
+	}
+
+	var bb bytes.Buffer
+	_, err = io.Copy(&bb, f3)
+	if err != nil {
+		return
+	}
+
+	pp := new(Package)
+	err = xml.Unmarshal(bb.Bytes(), &pp)
+	// fmt.Print(string(bb.Bytes()))
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	count := 0
+	for i, v := range pp.Manifest.Item {
+		fmt.Printf("ID %s, Href %s\n", v.ID, v.Href)
+		count = i
+		if v.ID == "nav" {
+			break
+		}
+	}
+	_ = count
+	d := dir + "/" + pp.Manifest.Item[count].Href
+	fmt.Println(d)
+
+	f4, err := files[d].Open()
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	_ = f4
+	var bb4 bytes.Buffer
+
+	_, err = io.Copy(&bb4, f4)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(bb4.Bytes()))
 
 }
