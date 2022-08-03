@@ -220,7 +220,41 @@ type Html struct {
 	} `xml:"body"`
 }
 
-type T1 struct {
-	XMLName xml.Name   `xml:"container"`
-	Attrs   []xml.Attr `xml:",any,attr"`
+type Container01 struct {
+	XMLName   xml.Name `xml:"container"`
+	Xmlns     string   `xml:"xmlns,attr"`
+	Version   string   `xml:"version,attr"`
+	Rootfiles struct {
+		Text     string `xml:",chardata"`
+		Rootfile struct {
+			FullPath  string `xml:"full-path,attr"`
+			MediaType string `xml:"media-type,attr"`
+		} `xml:"rootfile"`
+	} `xml:"rootfiles"`
+}
+
+type Content struct {
+	XMLName  xml.Name `xml:"package"`
+	Xmlns    string   `xml:"xmlns,attr"`
+	Version  string   `xml:"version,attr"`
+	Metadata struct {
+		Dc         string `xml:"dc,attr"`
+		Opf        string `xml:"opf,attr"`
+		Identifier struct {
+			Text string `xml:",chardata"`
+		} `xml:"identifier"`
+		Title struct {
+			Text string `xml:",chardata"`
+		} `xml:"title"`
+		Date struct {
+			Text string `xml:",chardata"`
+		} `xml:"date"`
+		Language struct {
+			Text string `xml:",chardata"`
+		} `xml:"language"`
+		Meta struct {
+			Name string `xml:"name,attr"`
+			Text string `xml:",chardata"`
+		} `xml:"meta"`
+	} `xml:"metadata"`
 }

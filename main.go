@@ -210,7 +210,6 @@ func test() {
 	fmt.Println("nav")
 	// nav
 	err = xml.Unmarshal(bb4.Bytes(), &pp)
-	write(bb4.Bytes())
 
 	fmt.Println("parse")
 
@@ -230,9 +229,11 @@ func test() {
 
 func test2() {
 	f, err := os.Open("./gon_sample.epub")
+
 	if err != nil {
 		panic(err)
 	}
+
 	fi, err := f.Stat()
 	if err != nil {
 		return
@@ -249,18 +250,36 @@ func test2() {
 		files[ff.Name] = ff
 	}
 
-	f2, err := files[contain_path].Open()
+	b, err := OpenFile(files, contain_path)
+	// write(b, "contain")
 	if err != nil {
 		return
 	}
 
-	var b bytes.Buffer
-	_, err = io.Copy(&b, f2)
-	fmt.Println(b.String())
-	c := new(T1)
-	xml.Unmarshal(b.Bytes(), c)
-	fmt.Println(c.Attrs[0].Name.Local)
+	container := new(Container01)
+	xml.Unmarshal(b, container)
+	full_path := container.Rootfiles.Rootfile.FullPath
 
+	content_buff, err := OpenFile(files, full_path)
+	if err != nil {
+		return
+	}
+
+	// write(content_buff, "content")
+	content := new(Content)
+	xml.Unmarshal(content_buff, content)
+	fmt.Println(content.Metadata.Meta.Name)
+
+}
+
+func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
+	content_file, err := files[path].Open()
+	if err != nil {
+		return nil, nil
+	}
+	var b bytes.Buffer
+	_, err = io.Copy(&b, content_file)
+	return b.Bytes(), nil
 }
 
 func main() {
@@ -268,8 +287,11 @@ func main() {
 
 }
 
-func write(b []byte) {
-	f, _ := os.Create("data.xml")
+func write(b []byte, name string) {
+	f, err := os.Create(name + ".xml")
+	if err != nil {
+		panic(err)
+	}
 	f.Write(b)
 	f.Close()
 }
