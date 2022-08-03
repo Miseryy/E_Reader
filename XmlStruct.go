@@ -124,7 +124,7 @@ type aPackage struct {
 	} `xml:"guide"`
 }
 
-type Nav struct {
+type Nav1 struct {
 	XMLName xml.Name `xml:"html"`
 	Text    string   `xml:",chardata"`
 	Xmlns   string   `xml:"xmlns,attr"`
@@ -257,4 +257,25 @@ type Content struct {
 			Text string `xml:",chardata"`
 		} `xml:"meta"`
 	} `xml:"metadata"`
+	Manifest struct {
+		Items []struct {
+			ID         string `xml:"id,attr"`
+			Href       string `xml:"href,attr"`
+			MediaType  string `xml:"media-type,attr"`
+			Properties string `xml:"properties,attr"`
+		} `xml:"item"`
+	} `xml:"manifest"`
+	Spine struct {
+		Toc      string `xml:"toc,attr"`
+		Itemrefs []struct {
+			Idref  string `xml:"idref,attr"`
+			Linear string `xml:"linear,attr"`
+		} `xml:"itemref"`
+	} `xml:"spine"`
+}
+
+type Nav struct {
+	Xmlns string `xml:"xmlns,attr"`
+	Epub  string `xml:"epub,attr"`
+	Lang  string `xml:"lang,attr"`
 }

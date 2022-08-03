@@ -118,7 +118,7 @@ func my_teacher() {
 
 }
 
-const contain_path = "META-INF/container.xml"
+const meta_container_path = "META-INF/container.xml"
 
 func test() {
 	f, err := os.Open("./gon_sample.epub")
@@ -143,7 +143,7 @@ func test() {
 		files[ff.Name] = ff
 	}
 
-	f2, err := files[contain_path].Open()
+	f2, err := files[meta_container_path].Open()
 	if err != nil {
 		return
 	}
@@ -228,7 +228,7 @@ func test() {
 }
 
 func test2() {
-	f, err := os.Open("./gon_sample.epub")
+	f, err := os.Open("./mybook.epub")
 
 	if err != nil {
 		panic(err)
@@ -250,15 +250,20 @@ func test2() {
 		files[ff.Name] = ff
 	}
 
-	b, err := OpenFile(files, contain_path)
+	container, err := OpenFile(files, meta_container_path)
 	// write(b, "contain")
 	if err != nil {
 		return
 	}
 
-	container := new(Container01)
-	xml.Unmarshal(b, container)
-	full_path := container.Rootfiles.Rootfile.FullPath
+	container_st := new(Container01)
+	err = xml.Unmarshal(container, container_st)
+	if err != nil {
+		return
+	}
+	full_path := container_st.Rootfiles.Rootfile.FullPath
+	fmt.Println(full_path)
+	dir := strings.Split(full_path, "/")[0]
 
 	content_buff, err := OpenFile(files, full_path)
 	if err != nil {
@@ -266,9 +271,25 @@ func test2() {
 	}
 
 	// write(content_buff, "content")
-	content := new(Content)
-	xml.Unmarshal(content_buff, content)
-	fmt.Println(content.Metadata.Meta.Name)
+	content_st := new(Content)
+	xml.Unmarshal(content_buff, content_st)
+	var nav_path string
+
+	for _, item := range content_st.Manifest.Items {
+		if item.ID == "nav" {
+			nav_path = dir + "/" + item.Href
+		}
+	}
+
+	fmt.Println(nav_path)
+
+	nav_buff, err := OpenFile(files, nav_path)
+	if err != nil {
+		return
+	}
+	nav_st := new(Nav)
+	xml.Unmarshal(nav_buff, nav_st)
+	fmt.Println(nav_st)
 
 }
 
