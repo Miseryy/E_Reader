@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html[]>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="generator" content="pandoc" />
+    <title>ごんぎつね</title>
+    <link rel="stylesheet" type="text/css" href="styles/stylesheet1.css" />
+  </head>
+  <body>
+    <nav epub:type="toc" id="toc">
+      <h1 id="toc-title">ごんぎつね</h1>
+      <ol class="toc">
+        <li id="toc-li-1">
+          <a href="Text/ch001.xhtml#ごんぎつね">aaごんぎつね</a>
+        </li>
+        <li id="toc-li-2">
+          <a href="Text/ch002.xhtml#一">一</a>
+        </li>
+        <li id="toc-li-3">
+          <a href="Text/ch003.xhtml#二">二</a>
+        </li>
+        <li id="toc-li-4">
+          <a href="Text/ch004.xhtml#三">三</a>
+        </li>
+        <li id="toc-li-5">
+          <a href="Text/ch005.xhtml#四">四</a>
+        </li>
+        <li id="toc-li-6">
+          <a href="Text/ch006.xhtml#五">五</a>
+        </li>
+        <li id="toc-li-7">
+          <a href="Text/ch007.xhtml#六">六</a>
+        </li>
+        <li id="toc-li-8">
+          <a href="Text/ch008.xhtml#奥付">奥付</a>
+        </li>
+      </ol>
+    </nav>
+    <nav epub:type="landmarks" id="landmarks" hidden="hidden">
+      <ol>
+        <li>
+          <a href="Text/cover.xhtml" epub:type="cover">Cover</a>
+        </li>
+      </ol>
+    </nav>
+    <xhtml:nav epub:type="page-list" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+      <xhtml:h1>List of pages</xhtml:h1>
+      <xhtml:ol>
+        <xhtml:li>
+          <xhtml:a href="Text/ch001.xhtml#page1">1</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch001.xhtml#page2">2</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch001.xhtml#page3">3</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch002.xhtml#page4">4</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch002.xhtml#page5">5</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch003.xhtml#page6">6</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch004.xhtml#page7">7</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch005.xhtml#page8">8</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch005.xhtml#page9">9</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch006.xhtml#page10">10</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch007.xhtml#page11">11</xhtml:a>
+        </xhtml:li>
+        <xhtml:li>
+          <xhtml:a href="Text/ch008.xhtml#page12">12</xhtml:a>
+        </xhtml:li>
+      </xhtml:ol>
+    </xhtml:nav>
+  </body>
+</html>

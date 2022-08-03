@@ -14,128 +14,6 @@ import (
 	"golang.org/x/net/html"
 )
 
-type Container struct {
-	XMLName   xml.Name `xml:"container"`
-	Text      string   `xml:",chardata"`
-	Xmlns     string   `xml:"xmlns,attr"`
-	Version   string   `xml:"version,attr"`
-	Rootfiles struct {
-		Text     string `xml:",chardata"`
-		Rootfile struct {
-			Text      string `xml:",chardata"`
-			FullPath  string `xml:"full-path,attr"`
-			MediaType string `xml:"media-type,attr"`
-		} `xml:"rootfile"`
-	} `xml:"rootfiles"`
-}
-
-type Package struct {
-	XMLName          xml.Name `xml:"package"`
-	Text             string   `xml:",chardata"`
-	Xmlns            string   `xml:"xmlns,attr"`
-	UniqueIdentifier string   `xml:"unique-identifier,attr"`
-	Version          string   `xml:"version,attr"`
-	Metadata         struct {
-		Text       string `xml:",chardata"`
-		Dc         string `xml:"dc,attr"`
-		Identifier struct {
-			Text string `xml:",chardata"`
-			ID   string `xml:"id,attr"`
-		} `xml:"identifier"`
-		Title    string `xml:"title"`
-		Language string `xml:"language"`
-		Creator  struct {
-			Text string `xml:",chardata"`
-			ID   string `xml:"id,attr"`
-		} `xml:"creator"`
-		Meta []struct {
-			Text     string `xml:",chardata"`
-			Refines  string `xml:"refines,attr"`
-			Property string `xml:"property,attr"`
-			Scheme   string `xml:"scheme,attr"`
-			ID       string `xml:"id,attr"`
-		} `xml:"meta"`
-	} `xml:"metadata"`
-	Manifest struct {
-		Text string `xml:",chardata"`
-		Item []struct {
-			Text       string `xml:",chardata"`
-			ID         string `xml:"id,attr"`
-			Href       string `xml:"href,attr"`
-			MediaType  string `xml:"media-type,attr"`
-			Properties string `xml:"properties,attr"`
-		} `xml:"item"`
-	} `xml:"manifest"`
-	Spine struct {
-		Text    string `xml:",chardata"`
-		Toc     string `xml:"toc,attr"`
-		Itemref struct {
-			Text  string `xml:",chardata"`
-			Idref string `xml:"idref,attr"`
-		} `xml:"itemref"`
-	} `xml:"spine"`
-}
-
-type aPackage struct {
-	XMLName          xml.Name `xml:"package"`
-	Text             string   `xml:",chardata"`
-	Xmlns            string   `xml:"xmlns,attr"`
-	UniqueIdentifier string   `xml:"unique-identifier,attr"`
-	Version          string   `xml:"version,attr"`
-	Lang             string   `xml:"lang,attr"`
-	Metadata         struct {
-		Text       string `xml:",chardata"`
-		Dc         string `xml:"dc,attr"`
-		Opf        string `xml:"opf,attr"`
-		Identifier struct {
-			Text   string `xml:",chardata"`
-			ID     string `xml:"id,attr"`
-			Scheme string `xml:"scheme,attr"`
-		} `xml:"identifier"`
-		Meta []struct {
-			Text     string `xml:",chardata"`
-			Refines  string `xml:"refines,attr"`
-			Property string `xml:"property,attr"`
-			Name     string `xml:"name,attr"`
-			Content  string `xml:"content,attr"`
-		} `xml:"meta"`
-		Title     string `xml:"title"`
-		Language  string `xml:"language"`
-		Creator   string `xml:"creator"`
-		Publisher string `xml:"publisher"`
-		Date      string `xml:"date"`
-	} `xml:"metadata"`
-	Manifest struct {
-		Text string `xml:",chardata"`
-		Item []struct {
-			Text       string `xml:",chardata"`
-			ID         string `xml:"id,attr"`
-			Href       string `xml:"href,attr"`
-			MediaType  string `xml:"media-type,attr"`
-			Properties string `xml:"properties,attr"`
-		} `xml:"item"`
-	} `xml:"manifest"`
-	Spine struct {
-		Text                     string `xml:",chardata"`
-		Toc                      string `xml:"toc,attr"`
-		PageProgressionDirection string `xml:"page-progression-direction,attr"`
-		Itemref                  []struct {
-			Text   string `xml:",chardata"`
-			Idref  string `xml:"idref,attr"`
-			Linear string `xml:"linear,attr"`
-		} `xml:"itemref"`
-	} `xml:"spine"`
-	Guide struct {
-		Text      string `xml:",chardata"`
-		Reference struct {
-			Text  string `xml:",chardata"`
-			Type  string `xml:"type,attr"`
-			Title string `xml:"title,attr"`
-			Href  string `xml:"href,attr"`
-		} `xml:"reference"`
-	} `xml:"guide"`
-}
-
 func my_teacher() {
 	// rc, err := epub.OpenReader("./test.epub")
 	// rc, err := epub.OpenReader("./mybook.epub")
@@ -242,8 +120,8 @@ func my_teacher() {
 
 const contain_path = "META-INF/container.xml"
 
-func main() {
-	f, err := os.Open("./mybook.epub")
+func test() {
+	f, err := os.Open("./gon_sample.epub")
 	if err != nil {
 		return
 	}
@@ -264,7 +142,6 @@ func main() {
 	for _, ff := range z.File {
 		files[ff.Name] = ff
 	}
-	//fmt.Println(files)
 
 	f2, err := files[contain_path].Open()
 	if err != nil {
@@ -311,7 +188,7 @@ func main() {
 			break
 		}
 	}
-	_ = count
+
 	d := dir + "/" + pp.Manifest.Item[count].Href
 	fmt.Println(d)
 
@@ -320,14 +197,79 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	_ = f4
-	var bb4 bytes.Buffer
 
+	var bb4 bytes.Buffer
+	_ = bb4
+
+	fmt.Println("bb4")
 	_, err = io.Copy(&bb4, f4)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	fmt.Println(string(bb4.Bytes()))
+	fmt.Println("nav")
+	// nav
+	err = xml.Unmarshal(bb4.Bytes(), &pp)
+	write(bb4.Bytes())
 
+	fmt.Println("parse")
+
+	nav_st := new(Html)
+
+	err = xml.Unmarshal(bb4.Bytes(), &nav_st)
+
+	// fmt.Println(nav_st.Body.Nav)
+	fmt.Println(nav_st.Body.Nav.Ol)
+	for _, vv := range nav_st.Body.Nav.Ol.Li {
+		for u, li := range vv.Ol.Li {
+			fmt.Println(u, li.Text)
+
+		}
+	}
+}
+
+func test2() {
+	f, err := os.Open("./gon_sample.epub")
+	if err != nil {
+		panic(err)
+	}
+	fi, err := f.Stat()
+	if err != nil {
+		return
+	}
+
+	//fmt.Println(fi.Size())
+	z, err := zip.NewReader(f, fi.Size())
+	if err != nil {
+		return
+	}
+
+	files := make(map[string]*zip.File)
+	for _, ff := range z.File {
+		files[ff.Name] = ff
+	}
+
+	f2, err := files[contain_path].Open()
+	if err != nil {
+		return
+	}
+
+	var b bytes.Buffer
+	_, err = io.Copy(&b, f2)
+	fmt.Println(b.String())
+	c := new(T1)
+	xml.Unmarshal(b.Bytes(), c)
+	fmt.Println(c.Attrs[0].Name.Local)
+
+}
+
+func main() {
+	test2()
+
+}
+
+func write(b []byte) {
+	f, _ := os.Create("data.xml")
+	f.Write(b)
+	f.Close()
 }
