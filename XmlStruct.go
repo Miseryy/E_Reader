@@ -278,4 +278,16 @@ type Nav struct {
 	Xmlns string `xml:"xmlns,attr"`
 	Epub  string `xml:"epub,attr"`
 	Lang  string `xml:"lang,attr"`
+	Body  struct {
+		Nav []struct {
+			Type string `xml:"type,attr"`
+			H1   string `xml:"h1"`
+			Ol   struct {
+				Li []struct {
+					Id string `xml:"id,attr"`
+					A  string `xml:"a"`
+				} `xml:"li"`
+			} `xml:"ol"`
+		} `xml:"nav"`
+	} `xml:"body"`
 }

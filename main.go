@@ -289,7 +289,12 @@ func test2() {
 	}
 	nav_st := new(Nav)
 	xml.Unmarshal(nav_buff, nav_st)
-	fmt.Println(nav_st)
+	write(nav_buff, "nav")
+	for _, v := range nav_st.Body.Nav {
+		if v.Type == "toc" {
+			fmt.Println(v.Ol.Li)
+		}
+	}
 
 }
 
