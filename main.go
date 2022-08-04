@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/xml"
+	ereader "epub_test/EReader"
 	"fmt"
 	"io"
 	"os"
@@ -120,6 +121,7 @@ func my_teacher() {
 
 const meta_container_path = "META-INF/container.xml"
 
+/*
 func test() {
 	f, err := os.Open("./gon_sample.epub")
 	if err != nil {
@@ -226,6 +228,7 @@ func test() {
 		}
 	}
 }
+*/
 
 func test2() {
 	f, err := os.Open("./mybook.epub")
@@ -256,13 +259,14 @@ func test2() {
 		return
 	}
 
-	container_st := new(Container01)
+	container_st := new(ereader.Container)
 	err = xml.Unmarshal(container, container_st)
 	if err != nil {
 		return
 	}
-	full_path := container_st.Rootfiles.Rootfile.FullPath
-	fmt.Println(full_path)
+
+	full_path := container_st.Rootfiles[0].Rootfile.FullPath //container_st.Rootfiles.Rootfile.FullPath
+
 	dir := strings.Split(full_path, "/")[0]
 
 	content_buff, err := OpenFile(files, full_path)
@@ -271,30 +275,28 @@ func test2() {
 	}
 
 	// write(content_buff, "content")
-	content_st := new(Content)
+	content_st := new(ereader.Content)
 	xml.Unmarshal(content_buff, content_st)
 	var nav_path string
 
-	for _, item := range content_st.Manifest.Items {
+	for _, item := range content_st.Items {
 		if item.ID == "nav" {
 			nav_path = dir + "/" + item.Href
 		}
 	}
 
-	fmt.Println(nav_path)
-
 	nav_buff, err := OpenFile(files, nav_path)
 	if err != nil {
 		return
 	}
-	nav_st := new(Nav)
+	nav_st := new(ereader.Nav)
 	xml.Unmarshal(nav_buff, nav_st)
 	// write(nav_buff, "nav")
-	for _, v := range nav_st.Body.Nav {
-		if v.Type == "toc" {
-			fmt.Println(v.Ol.Li)
-		}
-	}
+	// for _, v := range nav_st.Nav {
+	// 	if v.Type == "toc" {
+	// 		fmt.Println(v.Li)
+	// 	}
+	// }
 
 }
 
@@ -308,8 +310,16 @@ func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+func test3() {
+	r := ereader.New()
+	r.OpenEpub("gon_sample.epub")
+	fmt.Println(r.GetPackage().Nav)
+
+}
+
 func main() {
-	test2()
+	// test2()
+	test3()
 
 }
 

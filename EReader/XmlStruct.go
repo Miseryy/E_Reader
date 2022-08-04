@@ -1,7 +1,8 @@
-package main
+package ereader
 
 import "encoding/xml"
 
+/*
 type Container struct {
 	XMLName   xml.Name `xml:"container"`
 	Text      string   `xml:",chardata"`
@@ -219,13 +220,13 @@ type Html struct {
 		} `xml:"nav"`
 	} `xml:"body"`
 }
+*/
 
-type Container01 struct {
+type Container struct {
 	XMLName   xml.Name `xml:"container"`
 	Xmlns     string   `xml:"xmlns,attr"`
 	Version   string   `xml:"version,attr"`
-	Rootfiles struct {
-		Text     string `xml:",chardata"`
+	Rootfiles []struct {
 		Rootfile struct {
 			FullPath  string `xml:"full-path,attr"`
 			MediaType string `xml:"media-type,attr"`
@@ -257,14 +258,12 @@ type Content struct {
 			Text string `xml:",chardata"`
 		} `xml:"meta"`
 	} `xml:"metadata"`
-	Manifest struct {
-		Items []struct {
-			ID         string `xml:"id,attr"`
-			Href       string `xml:"href,attr"`
-			MediaType  string `xml:"media-type,attr"`
-			Properties string `xml:"properties,attr"`
-		} `xml:"item"`
-	} `xml:"manifest"`
+	Items []struct {
+		ID         string `xml:"id,attr"`
+		Href       string `xml:"href,attr"`
+		MediaType  string `xml:"media-type,attr"`
+		Properties string `xml:"properties,attr"`
+	} `xml:"manifest>item"`
 	Spine struct {
 		Toc      string `xml:"toc,attr"`
 		Itemrefs []struct {
@@ -275,19 +274,16 @@ type Content struct {
 }
 
 type Nav struct {
-	Xmlns string `xml:"xmlns,attr"`
-	Epub  string `xml:"epub,attr"`
-	Lang  string `xml:"lang,attr"`
-	Body  struct {
-		Nav []struct {
-			Type string `xml:"type,attr"`
-			H1   string `xml:"h1"`
-			Ol   struct {
-				Li []struct {
-					Id string `xml:"id,attr"`
-					A  string `xml:"a"`
-				} `xml:"li"`
-			} `xml:"ol"`
-		} `xml:"nav"`
-	} `xml:"body"`
+	Xmlns string   `xml:"xmlns,attr"`
+	Epub  string   `xml:"epub,attr"`
+	Lang  string   `xml:"lang,attr"`
+	Id    []string `xml:"html>id"`
+	Nav   []struct {
+		Type string `xml:"type,attr"`
+		H1   string `xml:"h1"`
+		Li   []struct {
+			Id string `xml:"id,attr"`
+			A  string `xml:"a"`
+		} `xml:"ol>li"`
+	} `xml:"body>nav"`
 }
