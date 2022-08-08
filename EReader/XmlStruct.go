@@ -274,6 +274,7 @@ type Content struct {
 }
 
 type Nav struct {
+	Title string   `xml:"head>title"`
 	Xmlns string   `xml:"xmlns,attr"`
 	Epub  string   `xml:"epub,attr"`
 	Lang  string   `xml:"lang,attr"`
@@ -282,8 +283,20 @@ type Nav struct {
 		Type string `xml:"type,attr"`
 		H1   string `xml:"h1"`
 		Li   []struct {
-			Id string `xml:"id,attr"`
-			A  string `xml:"a"`
+			Li []struct {
+				A struct {
+					Text string `xml:",chardata"`
+					Href string `xml:"href,attr"`
+				} `xml:"a"`
+			} `xml:"ol>li"`
+			A struct {
+				Text string `xml:",chardata"`
+				Href string `xml:"href,attr"`
+			} `xml:"a"`
 		} `xml:"ol>li"`
 	} `xml:"body>nav"`
+}
+
+type Chapter struct {
+	Head string `xml:"head"`
 }

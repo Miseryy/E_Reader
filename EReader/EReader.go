@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -14,16 +15,23 @@ const (
 )
 
 type EReader struct {
-	files   map[string]*zip.File
-	chapter []string
-	dir     string
+	files    map[string]*zip.File
+	chapter  []string
+	nav_path []navParam
+	dir      string
 	Package
+}
+
+type navParam struct {
+	name string
+	path string
 }
 
 type Package struct {
 	Container *Container
 	Content   *Content
 	Nav       *Nav
+	Chapter   []*Chapter
 }
 
 func New() *EReader {
@@ -67,14 +75,37 @@ func (self *EReader) OpenEpub(file_path string) {
 
 	var nav_path string
 	for _, i := range self.Package.Content.Items {
-		if i.ID == "nav" {
+		if i.ID == "nav" || i.Properties == "nav" {
 			nav_path = i.Href
+			break
 		}
+	}
+
+	if len(nav_path) < 1 {
+		fmt.Println("error")
+		return
 	}
 
 	err = self.setNav(self.dir + "/" + nav_path)
 	if err != nil {
 		return
+	}
+
+	for _, n := range self.Package.Nav.Nav {
+		fmt.Println(n.H1)
+		if n.Type != "toc" {
+			continue
+		}
+
+		for _, l := range n.Li {
+			fmt.Println(l.A.Href)
+			tmp_param := navParam{
+				name: l.A.Text,
+				path: l.A.Href,
+			}
+
+			self.nav_path = append(self.nav_path, tmp_param)
+		}
 	}
 }
 
@@ -117,6 +148,19 @@ func (self *EReader) setNav(path string) error {
 
 	return nil
 
+}
+
+func (self *EReader) setChapter(path string) error {
+	b, err := self.openFile(path)
+	if err != nil {
+		return err
+	}
+
+	ch := new(Chapter)
+	xml.Unmarshal(b, ch)
+	self.Package.Chapter = append(self.Package.Chapter, ch)
+
+	return nil
 }
 
 func (self EReader) GetPackage() Package {
