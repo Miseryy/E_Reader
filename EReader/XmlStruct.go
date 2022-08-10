@@ -298,5 +298,8 @@ type Nav struct {
 }
 
 type Chapter struct {
-	Head string `xml:"head"`
+	Title string `xml:"head>title"`
+	Body  struct {
+		Data string `xml:",innerxml"`
+	} `xml:"body"`
 }

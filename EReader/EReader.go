@@ -118,17 +118,28 @@ func (self *EReader) OpenEpub(file_path string) {
 		}
 	}
 
-	path := strings.Split(self.NavPath[0].path, "#")[0]
-	sp_array := strings.Split(path, "/")
+	for _, nav := range self.NavPath {
+		p := strings.Split(nav.path, "#")[0]
+		sp_array := strings.Split(p, "/")
 
-	if len(sp_array) > 1 {
-		path = self.dir + "/" + path
-	} else {
-		path = self.dir + "/" + self.middle_dir + "/" + path
+		if len(sp_array) > 1 {
+			p = self.dir + "/" + p
+		} else {
+			p = self.dir + "/" + self.middle_dir + "/" + p
 
+		}
+		self.setChapter(p)
 	}
 
-	self.setChapter(path)
+	// self.setChapter(path)
+
+	// fmt.Println(path)
+	fmt.Println(self.Package.Chapter[5].Body.Data)
+	// // fmt.Println(self.Package.Chapter[0].Body.Data)
+	// dd := strings.Split(self.Package.Chapter[0].Body.Data, "\n")
+	// fmt.Println(dd)
+
+	// fmt.Println(self.Package.Chapter[0].Title)
 
 }
 
@@ -179,11 +190,9 @@ func (self *EReader) setChapter(path string) error {
 		return err
 	}
 
-	fmt.Println(string(b))
-
-	// ch := new(Chapter)
-	// xml.Unmarshal(b, ch)
-	// self.Package.Chapter = append(self.Package.Chapter, ch)
+	ch := new(Chapter)
+	xml.Unmarshal(b, ch)
+	self.Package.Chapter = append(self.Package.Chapter, ch)
 
 	return nil
 }
