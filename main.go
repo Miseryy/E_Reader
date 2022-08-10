@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/taylorskalyo/goreader/epub"
@@ -310,9 +311,31 @@ func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+func removeTag(str string) string {
+	rep := regexp.MustCompile(`<("[^"]*"|'[^']*'|[^'">])*>`)
+	fmt.Println(str)
+	// ss := rep.FindAllString(str, -1)
+	// fmt.Println(ss)
+	str = rep.ReplaceAllString(str, "")
+	return str
+}
+
 func test3() {
 	r := ereader.New()
-	r.OpenEpub("./ebpaj-viewsamples.epub")
+	r.OpenEpub("./mybook.epub")
+
+	chap := r.GetChapters()[3]
+	data := chap.Body.Data
+	fmt.Println(data)
+	removeTag(data)
+
+	// a := 3
+	// fmt.Println(strings.Split(sp[a], `<("[^"]*"|'[^']*'|[^'">])*>`)[0])
+	// a := strings.Split(removeTag(chap.Body.Data), "\r\n")
+	// for _, v := range r.GetChapters() {
+	// 	fmt.Println(removeTag(v.Body.Data))
+	// 	break
+	// }
 
 }
 

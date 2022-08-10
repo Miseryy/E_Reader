@@ -18,10 +18,10 @@ const (
 type EReader struct {
 	files      map[string]*zip.File
 	chapter    []string
-	NavPath    []*navParam
+	navPath    []*navParam
 	dir        string
 	middle_dir string
-	Package
+	pack
 }
 
 type navParam struct {
@@ -29,11 +29,11 @@ type navParam struct {
 	path string
 }
 
-type Package struct {
-	Container *Container
-	Content   *Content
-	Nav       *Nav
-	Chapter   []*Chapter
+type pack struct {
+	container *Container
+	content   *Content
+	nav       *Nav
+	chapter   []*Chapter
 }
 
 func New() *EReader {
@@ -67,7 +67,7 @@ func (self *EReader) OpenEpub(file_path string) {
 		return
 	}
 
-	full_path := self.Package.Container.Rootfiles[0].Rootfile.FullPath
+	full_path := self.pack.container.Rootfiles[0].Rootfile.FullPath
 	err = self.setContent(full_path)
 	if err != nil {
 		return
@@ -77,7 +77,7 @@ func (self *EReader) OpenEpub(file_path string) {
 
 	var nav_path string
 	var chapter_path_href string
-	for _, i := range self.Package.Content.Items {
+	for _, i := range self.pack.content.Items {
 		if i.ID == "nav" || i.Properties == "nav" {
 			nav_path = i.Href
 		}
@@ -103,7 +103,7 @@ func (self *EReader) OpenEpub(file_path string) {
 		return
 	}
 
-	for _, n := range self.Package.Nav.Nav {
+	for _, n := range self.pack.nav.Nav {
 		if n.Type != "toc" {
 			continue
 		}
@@ -113,12 +113,18 @@ func (self *EReader) OpenEpub(file_path string) {
 				name: l.A.Text,
 				path: l.A.Href,
 			}
-
-			self.NavPath = append(self.NavPath, &tmp_param)
+			self.navPath = append(self.navPath, &tmp_param)
+			for _, ll := range l.Li {
+				tmp_param := navParam{
+					name: ll.A.Text,
+					path: ll.A.Href,
+				}
+				self.navPath = append(self.navPath, &tmp_param)
+			}
 		}
 	}
 
-	for _, nav := range self.NavPath {
+	for _, nav := range self.navPath {
 		p := strings.Split(nav.path, "#")[0]
 		sp_array := strings.Split(p, "/")
 
@@ -132,9 +138,12 @@ func (self *EReader) OpenEpub(file_path string) {
 	}
 
 	// self.setChapter(path)
-
 	// fmt.Println(path)
-	fmt.Println(self.Package.Chapter[5].Body.Data)
+	// fmt.Println(len(self.Package.Chapter))
+	// fmt.Println(self.Package.Chapter[5].Body.Data)
+	// for _, v := range self.Package.Chapter {
+	// 	fmt.Println(v.Title)
+	// }
 	// // fmt.Println(self.Package.Chapter[0].Body.Data)
 	// dd := strings.Split(self.Package.Chapter[0].Body.Data, "\n")
 	// fmt.Println(dd)
@@ -151,7 +160,7 @@ func (self *EReader) setContainer() error {
 
 	container := new(Container)
 	xml.Unmarshal(b, container)
-	self.Package.Container = container
+	self.pack.container = container
 
 	return nil
 }
@@ -164,7 +173,7 @@ func (self *EReader) setContent(path string) error {
 
 	content := new(Content)
 	xml.Unmarshal(b, content)
-	self.Package.Content = content
+	self.pack.content = content
 
 	return nil
 
@@ -178,7 +187,7 @@ func (self *EReader) setNav(path string) error {
 
 	nav := new(Nav)
 	xml.Unmarshal(b, nav)
-	self.Package.Nav = nav
+	self.pack.nav = nav
 
 	return nil
 
@@ -192,13 +201,25 @@ func (self *EReader) setChapter(path string) error {
 
 	ch := new(Chapter)
 	xml.Unmarshal(b, ch)
-	self.Package.Chapter = append(self.Package.Chapter, ch)
+	self.pack.chapter = append(self.pack.chapter, ch)
 
 	return nil
 }
 
-func (self EReader) GetPackage() Package {
-	return self.Package
+func (self EReader) GetContainer() Container {
+	return *self.pack.container
+}
+
+func (self EReader) GetContent() Content {
+	return *self.pack.content
+}
+
+func (self EReader) GetNav() Nav {
+	return *self.pack.nav
+}
+
+func (self EReader) GetChapters() []*Chapter {
+	return self.pack.chapter
 }
 
 func (self EReader) openFile(path string) ([]byte, error) {
