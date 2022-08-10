@@ -312,7 +312,7 @@ func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
 
 func test3() {
 	r := ereader.New()
-	r.OpenEpub("mybook.epub")
+	r.OpenEpub("./ebpaj-viewsamples.epub")
 
 }
 

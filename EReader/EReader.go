@@ -12,13 +12,15 @@ import (
 
 const (
 	meta_container_path = "META-INF/container.xml"
+	chapter_media_type  = "application/xhtml+xml"
 )
 
 type EReader struct {
-	files    map[string]*zip.File
-	chapter  []string
-	nav_path []navParam
-	dir      string
+	files      map[string]*zip.File
+	chapter    []string
+	NavPath    []*navParam
+	dir        string
+	middle_dir string
 	Package
 }
 
@@ -74,12 +76,22 @@ func (self *EReader) OpenEpub(file_path string) {
 	self.dir = strings.Split(full_path, "/")[0]
 
 	var nav_path string
+	var chapter_path_href string
 	for _, i := range self.Package.Content.Items {
 		if i.ID == "nav" || i.Properties == "nav" {
 			nav_path = i.Href
+		}
+
+		if i.ID != "nav" && i.MediaType == chapter_media_type {
+			chapter_path_href = i.Href
+		}
+
+		if len(nav_path) > 0 && len(chapter_path_href) > 0 {
 			break
 		}
 	}
+
+	self.middle_dir = strings.Split(chapter_path_href, "/")[0]
 
 	if len(nav_path) < 1 {
 		fmt.Println("error")
@@ -92,21 +104,32 @@ func (self *EReader) OpenEpub(file_path string) {
 	}
 
 	for _, n := range self.Package.Nav.Nav {
-		fmt.Println(n.H1)
 		if n.Type != "toc" {
 			continue
 		}
 
 		for _, l := range n.Li {
-			fmt.Println(l.A.Href)
 			tmp_param := navParam{
 				name: l.A.Text,
 				path: l.A.Href,
 			}
 
-			self.nav_path = append(self.nav_path, tmp_param)
+			self.NavPath = append(self.NavPath, &tmp_param)
 		}
 	}
+
+	path := strings.Split(self.NavPath[0].path, "#")[0]
+	sp_array := strings.Split(path, "/")
+
+	if len(sp_array) > 1 {
+		path = self.dir + "/" + path
+	} else {
+		path = self.dir + "/" + self.middle_dir + "/" + path
+
+	}
+
+	self.setChapter(path)
+
 }
 
 func (self *EReader) setContainer() error {
@@ -156,9 +179,11 @@ func (self *EReader) setChapter(path string) error {
 		return err
 	}
 
-	ch := new(Chapter)
-	xml.Unmarshal(b, ch)
-	self.Package.Chapter = append(self.Package.Chapter, ch)
+	fmt.Println(string(b))
+
+	// ch := new(Chapter)
+	// xml.Unmarshal(b, ch)
+	// self.Package.Chapter = append(self.Package.Chapter, ch)
 
 	return nil
 }
