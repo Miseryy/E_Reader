@@ -245,6 +245,8 @@ type Content struct {
 		Title      string `xml:"title"`
 		Date       string `xml:"date"`
 		Language   string `xml:"language"`
+		Creator    string `xml:"creator"`
+		Publisher  string `xml:"publisher"`
 		Meta       struct {
 			Name string `xml:"name,attr"`
 			Text string `xml:",chardata"`

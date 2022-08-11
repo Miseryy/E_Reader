@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
+	"strings"
 
 	ereader "epub_test/e-reader"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -26,12 +27,14 @@ func _getEpubPaths(root string) ([]string, error) {
 			return err
 		}
 
-		r, err := regexp.MatchString("epub", info.Name())
+		// r, err := regexp.MatchString(".epub", info.Name())
+		sp := strings.Split(info.Name(), ".")
+
 		if err != nil {
 			return err
 		}
 
-		if !info.IsDir() && r {
+		if !info.IsDir() && sp[len(sp)-1] == "epub" {
 			book_paths = append(book_paths, path)
 		}
 
@@ -46,7 +49,8 @@ func _getEpubPaths(root string) ([]string, error) {
 }
 
 func (s bookList) makeFrame() tview.Primitive {
-	list_frame := tview.NewTable()
+	table := tview.NewTable()
+	fmt.Println("fff")
 
 	provisional_dir := "/home/owner/go/src/e_reader/epubs/"
 
@@ -62,8 +66,6 @@ func (s bookList) makeFrame() tview.Primitive {
 			continue
 		}
 
-		fmt.Println(reader.GetContent().Metadata.Title)
-
 		readers = append(readers, reader)
 	}
 
@@ -71,16 +73,35 @@ func (s bookList) makeFrame() tview.Primitive {
 		panic(err)
 	}
 
-	fmt.Println(book_paths)
-
-	rows := len(book_paths)
-	cols := 5
+	head := strings.Split("Title,Creater,Publisher,Date,Language", ",")
+	rows := len(readers) + 1 // +1 head
+	cols := len(head)
 
 	for r := 0; r < rows; r++ {
-		for c := 0; c < cols; c++ {
+		var param_list []string
+		if r > 0 {
+			param_list = append(param_list, readers[r-1].GetContent().Metadata.Title)
+			param_list = append(param_list, readers[r-1].GetContent().Metadata.Creator)
+			param_list = append(param_list, readers[r-1].GetContent().Metadata.Publisher)
+			param_list = append(param_list, readers[r-1].GetContent().Metadata.Date)
+			param_list = append(param_list, readers[r-1].GetContent().Metadata.Language)
+		}
 
+		for c := 0; c < cols; c++ {
+			color := tcell.ColorWhite
+			if r == 0 {
+				color = tcell.ColorYellow
+				// Header
+				table.SetCell(r, c,
+					tview.NewTableCell(head[c]).SetTextColor(color).SetAlign(tview.AlignCenter))
+				continue
+			}
+
+			table.SetCell(r, c,
+				tview.NewTableCell(param_list[c]).
+					SetTextColor(color).SetAlign(tview.AlignLeft))
 		}
 	}
 
-	return list_frame
+	return table
 }
