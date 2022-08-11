@@ -360,7 +360,13 @@ func getTagHead(str string) []TagAndData {
 
 func test3() {
 	r := ereader.New()
-	r.OpenEpub("./mybook.epub")
+	r.OpenEpub("./PrideAndPrejudice.epub")
+
+	version := r.GetContent().Version
+	if version != "3.0" {
+		fmt.Println("Epub Version Error < 3.0")
+		return
+	}
 
 	chap := r.GetChapters()[4]
 	data := chap.Body.Data
@@ -379,7 +385,7 @@ func test3() {
 		case "":
 			fmt.Println(dd.Data)
 		case "h1", "h2", "h3", "h4":
-			fmt.Println(dd.Data)
+			fmt.Println("\t", dd.Data)
 		case "span":
 			fmt.Println(dd.Data)
 		case "p":
