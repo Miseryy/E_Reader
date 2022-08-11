@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -62,80 +63,8 @@ func (self *EReader) OpenEpub(file_path string) {
 		self.files[ff.Name] = ff
 	}
 
-	err = self.setContainer()
-	if err != nil {
-		return
-	}
-
-	full_path := self.pack.container.Rootfiles[0].Rootfile.FullPath
-	err = self.setContent(full_path)
-	if err != nil {
-		return
-	}
-
-	self.dir = strings.Split(full_path, "/")[0]
-
-	var nav_path string
-	var chapter_path_href string
-	for _, i := range self.pack.content.Items {
-		if i.ID == "nav" || i.Properties == "nav" {
-			nav_path = i.Href
-		}
-
-		if i.ID != "nav" && i.MediaType == chapter_media_type {
-			chapter_path_href = i.Href
-		}
-
-		if len(nav_path) > 0 && len(chapter_path_href) > 0 {
-			break
-		}
-	}
-
-	self.middle_dir = strings.Split(chapter_path_href, "/")[0]
-
-	if len(nav_path) < 1 {
-		fmt.Println("error")
-		return
-	}
-
-	err = self.setNav(self.dir + "/" + nav_path)
-	if err != nil {
-		return
-	}
-
-	for _, n := range self.pack.nav.Nav {
-		if n.Type != "toc" {
-			continue
-		}
-
-		for _, l := range n.Li {
-			tmp_param := navParam{
-				name: l.A.Text,
-				path: l.A.Href,
-			}
-			self.navPath = append(self.navPath, &tmp_param)
-			for _, ll := range l.Li {
-				tmp_param := navParam{
-					name: ll.A.Text,
-					path: ll.A.Href,
-				}
-				self.navPath = append(self.navPath, &tmp_param)
-			}
-		}
-	}
-
-	for _, nav := range self.navPath {
-		p := strings.Split(nav.path, "#")[0]
-		sp_array := strings.Split(p, "/")
-
-		if len(sp_array) > 1 {
-			p = self.dir + "/" + p
-		} else {
-			p = self.dir + "/" + self.middle_dir + "/" + p
-
-		}
-		self.setChapter(p)
-	}
+	// self.InitContainer()
+	// self.MakeChapters()
 
 	// self.setChapter(path)
 	// fmt.Println(path)
@@ -191,6 +120,89 @@ func (self *EReader) setNav(path string) error {
 
 	return nil
 
+}
+
+func (self *EReader) InitContainer() error {
+	err := self.setContainer()
+	if err != nil {
+		return err
+	}
+
+	full_path := self.pack.container.Rootfiles[0].Rootfile.FullPath
+	err = self.setContent(full_path)
+	if err != nil {
+		return err
+	}
+
+	self.dir = strings.Split(full_path, "/")[0]
+
+	return nil
+}
+
+func (self *EReader) MakeChapters() error {
+	var nav_path string
+	var chapter_path_href string
+	for _, i := range self.pack.content.Items {
+		if i.ID == "nav" || i.Properties == "nav" {
+			nav_path = i.Href
+		}
+
+		if i.ID != "nav" && i.MediaType == chapter_media_type {
+			chapter_path_href = i.Href
+		}
+
+		if len(nav_path) > 0 && len(chapter_path_href) > 0 {
+			break
+		}
+	}
+
+	self.middle_dir = strings.Split(chapter_path_href, "/")[0]
+
+	if len(nav_path) < 1 {
+		fmt.Println("error")
+		return errors.New("Can't open")
+	}
+
+	err := self.setNav(self.dir + "/" + nav_path)
+	if err != nil {
+		return err
+	}
+
+	for _, n := range self.pack.nav.Nav {
+		if n.Type != "toc" {
+			continue
+		}
+
+		for _, l := range n.Li {
+			tmp_param := navParam{
+				name: l.A.Text,
+				path: l.A.Href,
+			}
+			self.navPath = append(self.navPath, &tmp_param)
+			for _, ll := range l.Li {
+				tmp_param := navParam{
+					name: ll.A.Text,
+					path: ll.A.Href,
+				}
+				self.navPath = append(self.navPath, &tmp_param)
+			}
+		}
+	}
+
+	for _, nav := range self.navPath {
+		p := strings.Split(nav.path, "#")[0]
+		sp_array := strings.Split(p, "/")
+
+		if len(sp_array) > 1 {
+			p = self.dir + "/" + p
+		} else {
+			p = self.dir + "/" + self.middle_dir + "/" + p
+
+		}
+		self.setChapter(p)
+	}
+
+	return nil
 }
 
 func (self *EReader) setChapter(path string) error {

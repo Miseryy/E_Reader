@@ -3,6 +3,7 @@ module epub_test
 go 1.18
 
 require (
+	github.com/gdamore/tcell v1.4.0
 	github.com/rivo/tview v0.0.0-20220805210617-37ad0bb93703
 	github.com/taylorskalyo/goreader v0.0.0-20220528130152-945e7448ceb5
 	golang.org/x/net v0.0.0-20220526153639-5463443f8c37

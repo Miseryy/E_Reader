@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"encoding/xml"
 	ereader "epub_test/e-reader"
-	"epub_test/viewer"
 	"fmt"
 	"io"
 	"os"
@@ -313,7 +312,17 @@ func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
 
 func test3() {
 	r := ereader.New()
-	r.OpenEpub("./gon_sample.epub")
+	r.OpenEpub("./epubs/gon_sample.epub")
+
+	err := r.InitContainer()
+	if err != nil {
+		panic(err)
+	}
+
+	err = r.MakeChapters()
+	if err != nil {
+		panic(err)
+	}
 
 	version := r.GetContent().Version
 	if version != "3.0" {
@@ -358,13 +367,8 @@ func test3() {
 }
 
 func main() {
-	viewer.Run()
-	// test2()
-	// box := tview.NewBox().SetBorder(true).SetTitle("T")
-	// if err := tview.NewApplication().SetRoot(box, true).Run(); err != nil {
-	// 	panic(err)
-	// }
-	// test3()
+	// viewer.Run()
+	test3()
 
 }
 

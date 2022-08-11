@@ -12,7 +12,7 @@ var (
 
 func Run() {
 	app := tview.NewApplication()
-	main_f := NewMainFrame(app)
+	main_f := newMainFrame(app)
 
 	if err := app.SetRoot(main_f.MakeFrame(), true).EnableMouse(true).Run(); err != nil {
 		panic(err)
