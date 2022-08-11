@@ -1,7 +1,6 @@
 package viewer
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +12,7 @@ import (
 )
 
 type bookList struct {
+	table *tview.Table
 }
 
 func newBookList() *bookList {
@@ -48,14 +48,29 @@ func _getEpubPaths(root string) ([]string, error) {
 	return book_paths, nil
 }
 
-func (s bookList) makeFrame() tview.Primitive {
-	table := tview.NewTable()
-	fmt.Println("fff")
+func (b *bookList) makeFrame() tview.Primitive {
+	b.table = tview.NewTable()
+	b.table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
+		if key == tcell.KeyTab {
+			pages.SwitchToPage(p_read_frame_name)
+		}
 
+		if key == tcell.KeyEnter {
+			b.table.SetSelectable(true, true)
+		}
+
+	}).SetSelectedFunc(func(row int, colm int) {
+		b.table.GetCell(row, colm).SetTextColor(tcell.ColorLimeGreen)
+		b.table.SetSelectable(false, false)
+
+	})
+
+	return b.table
+}
+
+func (b *bookList) makeList() {
 	provisional_dir := "/home/owner/go/src/e_reader/epubs/"
-
 	book_paths, err := _getEpubPaths(provisional_dir)
-
 	readers := []*ereader.EReader{}
 
 	for _, bpath := range book_paths {
@@ -92,16 +107,15 @@ func (s bookList) makeFrame() tview.Primitive {
 			if r == 0 {
 				color = tcell.ColorYellow
 				// Header
-				table.SetCell(r, c,
+				b.table.SetCell(r, c,
 					tview.NewTableCell(head[c]).SetTextColor(color).SetAlign(tview.AlignCenter))
 				continue
 			}
 
-			table.SetCell(r, c,
+			b.table.SetCell(r, c,
 				tview.NewTableCell(param_list[c]).
 					SetTextColor(color).SetAlign(tview.AlignLeft))
 		}
 	}
 
-	return table
 }

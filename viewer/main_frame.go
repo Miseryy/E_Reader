@@ -19,14 +19,22 @@ func newMainFrame(app *tview.Application) *mainFrame {
 }
 
 func (m mainFrame) MakeFrame() tview.Primitive {
-	main_frame := tview.NewPages()
-	main_frame.SetBackgroundColor(tcell.ColorBlack)
+	pages = tview.NewPages()
+	pages.SetBackgroundColor(tcell.ColorBlack)
 	b_list := newBookList()
-	main_frame.AddPage(p_book_list_name, b_list.makeFrame(), true, true)
+	t := tview.NewTextView()
+	t.SetText("sfa")
+	book_list := b_list.makeFrame()
+
+	// app.SetFocus(book_list)
+	pages.AddPage(p_book_list_name, book_list, true, false)
+	pages.AddPage(p_read_frame_name, t, true, true)
+
+	b_list.makeList()
 
 	// main_frame.SetRows(0, 0).SetColumns(100, 0)
 	// main_frame.AddItem(b_list.makeFrame(), 0, 0, 1, 1, 0, 0, true)
 
-	return main_frame
+	return pages
 
 }
