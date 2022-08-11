@@ -311,23 +311,85 @@ func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
+type TagAndData struct {
+	Tag  string
+	Data string
+}
+
 func removeTag(str string) string {
 	rep := regexp.MustCompile(`<("[^"]*"|'[^']*'|[^'">])*>`)
-	fmt.Println(str)
-	// ss := rep.FindAllString(str, -1)
-	// fmt.Println(ss)
 	str = rep.ReplaceAllString(str, "")
 	return str
+}
+
+func convNewline(str, nlcode string) string {
+	return strings.NewReplacer(
+		"\r\n", nlcode,
+		"\r", nlcode,
+		"\n", nlcode,
+	).Replace(str)
+}
+
+func getTagHead(str string) []TagAndData {
+	rep := regexp.MustCompile(`^*<([a-z\d]*)`)
+	// <h1 id="contentIndex_chap_1">test</h1>
+	str = convNewline(str, "\n")
+
+	sp := strings.Split(str, "\n")
+	tad := make([]TagAndData, 0)
+
+	for _, s := range sp {
+		t := TagAndData{}
+		ss := rep.FindAllString(s, -1)
+		if len(ss) == 0 {
+			t.Tag = ""
+			s = strings.TrimSpace(s)
+			t.Data = s
+			tad = append(tad, t)
+			continue
+		}
+
+		t.Tag = ss[0][1:]
+		t.Data = strings.TrimSpace(removeTag(s))
+		tad = append(tad, t)
+	}
+
+	// str = rep.ReplaceAllString(str, "")
+	return tad
 }
 
 func test3() {
 	r := ereader.New()
 	r.OpenEpub("./mybook.epub")
 
-	chap := r.GetChapters()[3]
+	chap := r.GetChapters()[4]
 	data := chap.Body.Data
-	fmt.Println(data)
-	removeTag(data)
+	// fmt.Println(data)
+	// tt := `<p id='contentIndex_chap_1'>test</div>
+	// <h1 id='contentIndex_chap_1'>test</h1>`
+	d := getTagHead(data)
+	_ = d
+
+	for _, dd := range d {
+		if len(dd.Data) == 0 {
+			continue
+		}
+
+		switch dd.Tag {
+		case "":
+			fmt.Println(dd.Data)
+		case "h1", "h2", "h3", "h4":
+			fmt.Println(dd.Data)
+		case "span":
+			fmt.Println(dd.Data)
+		case "p":
+			fmt.Println(dd.Data)
+
+		}
+	}
+
+	// fmt.Println(d)
+	// removeTag(data)
 
 	// a := 3
 	// fmt.Println(strings.Split(sp[a], `<("[^"]*"|'[^']*'|[^'">])*>`)[0])
