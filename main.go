@@ -5,11 +5,11 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/xml"
-	ereader "epub_test/EReader"
+	ereader "epub_test/e-reader"
+	"epub_test/viewer"
 	"fmt"
 	"io"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/taylorskalyo/goreader/epub"
@@ -311,56 +311,9 @@ func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-type TagAndData struct {
-	Tag  string
-	Data string
-}
-
-func removeTag(str string) string {
-	rep := regexp.MustCompile(`<("[^"]*"|'[^']*'|[^'">])*>`)
-	str = rep.ReplaceAllString(str, "")
-	return str
-}
-
-func convNewline(str, nlcode string) string {
-	return strings.NewReplacer(
-		"\r\n", nlcode,
-		"\r", nlcode,
-		"\n", nlcode,
-	).Replace(str)
-}
-
-func getTagHead(str string) []TagAndData {
-	rep := regexp.MustCompile(`^*<([a-z\d]*)`)
-	// <h1 id="contentIndex_chap_1">test</h1>
-	str = convNewline(str, "\n")
-
-	sp := strings.Split(str, "\n")
-	tad := make([]TagAndData, 0)
-
-	for _, s := range sp {
-		t := TagAndData{}
-		ss := rep.FindAllString(s, -1)
-		if len(ss) == 0 {
-			t.Tag = ""
-			s = strings.TrimSpace(s)
-			t.Data = s
-			tad = append(tad, t)
-			continue
-		}
-
-		t.Tag = ss[0][1:]
-		t.Data = strings.TrimSpace(removeTag(s))
-		tad = append(tad, t)
-	}
-
-	// str = rep.ReplaceAllString(str, "")
-	return tad
-}
-
 func test3() {
 	r := ereader.New()
-	r.OpenEpub("./PrideAndPrejudice.epub")
+	r.OpenEpub("./gon_sample.epub")
 
 	version := r.GetContent().Version
 	if version != "3.0" {
@@ -368,12 +321,9 @@ func test3() {
 		return
 	}
 
-	chap := r.GetChapters()[4]
+	chap := r.GetChapters()[5]
 	data := chap.Body.Data
-	// fmt.Println(data)
-	// tt := `<p id='contentIndex_chap_1'>test</div>
-	// <h1 id='contentIndex_chap_1'>test</h1>`
-	d := getTagHead(data)
+	d := ereader.GetTagHead(data)
 	_ = d
 
 	for _, dd := range d {
@@ -408,8 +358,13 @@ func test3() {
 }
 
 func main() {
+	viewer.Run()
 	// test2()
-	test3()
+	// box := tview.NewBox().SetBorder(true).SetTitle("T")
+	// if err := tview.NewApplication().SetRoot(box, true).Run(); err != nil {
+	// 	panic(err)
+	// }
+	// test3()
 
 }
 
