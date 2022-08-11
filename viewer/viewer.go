@@ -1,6 +1,7 @@
 package viewer
 
 import (
+	ereader "epub_test/e-reader"
 	"os"
 
 	"github.com/rivo/tview"
@@ -8,6 +9,7 @@ import (
 
 var (
 	current_dir, _ = os.Getwd()
+	e_reader       = ereader.New()
 )
 
 func Run() {

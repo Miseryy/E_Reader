@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/xml"
 	ereader "epub_test/e-reader"
+	"epub_test/viewer"
 	"fmt"
 	"io"
 	"os"
@@ -367,8 +368,8 @@ func test3() {
 }
 
 func main() {
-	// viewer.Run()
-	test3()
+	viewer.Run()
+	// test3()
 
 }
 

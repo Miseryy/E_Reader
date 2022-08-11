@@ -241,19 +241,11 @@ type Content struct {
 	Metadata struct {
 		Dc         string `xml:"dc,attr"`
 		Opf        string `xml:"opf,attr"`
-		Identifier struct {
-			Text string `xml:",chardata"`
-		} `xml:"identifier"`
-		Title struct {
-			Text string `xml:",chardata"`
-		} `xml:"title"`
-		Date struct {
-			Text string `xml:",chardata"`
-		} `xml:"date"`
-		Language struct {
-			Text string `xml:",chardata"`
-		} `xml:"language"`
-		Meta struct {
+		Identifier string `xml:"identifier"`
+		Title      string `xml:"title"`
+		Date       string `xml:"date"`
+		Language   string `xml:"language"`
+		Meta       struct {
 			Name string `xml:"name,attr"`
 			Text string `xml:",chardata"`
 		} `xml:"meta"`

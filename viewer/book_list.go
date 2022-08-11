@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"regexp"
 
+	ereader "epub_test/e-reader"
+
 	"github.com/rivo/tview"
 )
 
@@ -49,6 +51,21 @@ func (s bookList) makeFrame() tview.Primitive {
 	provisional_dir := "/home/owner/go/src/e_reader/epubs/"
 
 	book_paths, err := _getEpubPaths(provisional_dir)
+
+	readers := []*ereader.EReader{}
+
+	for _, bpath := range book_paths {
+		reader := ereader.New()
+		reader.OpenEpub(bpath)
+		err := reader.InitContainer()
+		if err != nil {
+			continue
+		}
+
+		fmt.Println(reader.GetContent().Metadata.Title)
+
+		readers = append(readers, reader)
+	}
 
 	if err != nil {
 		panic(err)
