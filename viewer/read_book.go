@@ -26,12 +26,27 @@ func (r *readBook) makeFrame() tview.Primitive {
 
 	}).SetBorder(true)
 
+	frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyTab:
+			pages.SwitchToPage(p_book_list_name)
+
+		}
+		return event
+	})
+
 	read_book_ele.text_view = tview.NewTextView()
 	read_book_ele.text_view.SetText("sdfafa").SetBorder(true)
 
-	frame.SetRows(0).SetColumns(0, 0)
+	command_text_view := tview.NewTextView()
+	command_text_view.SetDynamicColors(true).SetRegions(true)
+	command_string := "[red]<Tab>[white]::GoToBookList"
+	command_text_view.SetText(command_string)
+
+	frame.SetRows(0, 1).SetColumns(0, 0)
 	frame.AddItem(read_book_ele.table_contents, 0, 0, 1, 1, 0, 0, true)
 	frame.AddItem(read_book_ele.text_view, 0, 1, 1, 1, 0, 0, true)
+	frame.AddItem(command_text_view, 1, 0, 1, 2, 0, 0, true)
 
 	return frame
 }

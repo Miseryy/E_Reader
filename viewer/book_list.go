@@ -50,12 +50,13 @@ func _getEpubPaths(root string) ([]string, error) {
 }
 
 func (b *bookList) makeFrame() tview.Primitive {
+	frame := tview.NewGrid()
+	command_texts := tview.NewTextView()
 	b.table = tview.NewTable()
 	b.table.SetSelectable(true, false)
 
 	b.table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyTab {
-			pages.SwitchToPage(p_read_frame_name)
 		}
 
 		if key == tcell.KeyEnter {
@@ -67,13 +68,31 @@ func (b *bookList) makeFrame() tview.Primitive {
 		}
 
 		e_reader = b.readers[row]
+		read_book_ele.text_view.Clear()
 
 		pages.SwitchToPage(p_read_frame_name)
 		b.table.SetSelectable(true, false)
 
 	})
 
-	return b.table
+	frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Key() {
+		case tcell.KeyTab:
+			pages.SwitchToPage(p_read_frame_name)
+
+		}
+		return event
+	})
+
+	command_texts.SetDynamicColors(true).SetRegions(true)
+	command_string := "[red]<Tab>[white]::GoToRead"
+	command_texts.SetText(command_string)
+
+	frame.SetRows(0, 1).SetColumns(0)
+	frame.AddItem(b.table, 0, 0, 1, 1, 0, 0, true)
+	frame.AddItem(command_texts, 1, 0, 1, 1, 0, 0, true)
+
+	return frame
 }
 
 func (b *bookList) makeList() {
