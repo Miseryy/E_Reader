@@ -313,7 +313,7 @@ func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
 
 func test3() {
 	r := ereader.New()
-	r.OpenEpub("./epubs/gon_sample.epub")
+	r.OpenEpub("./epubs/ebpaj-viewsamples.epub")
 
 	err := r.InitContainer()
 	if err != nil {
@@ -332,6 +332,7 @@ func test3() {
 	}
 
 	chap := r.GetChapters()[5]
+	fmt.Println(len(r.GetChapters()))
 	data := chap.Body.Data
 	d := ereader.GetTagHead(data)
 	_ = d
@@ -343,13 +344,13 @@ func test3() {
 
 		switch dd.Tag {
 		case "":
-			fmt.Println(dd.Data)
+			// fmt.Println(dd.Data)
 		case "h1", "h2", "h3", "h4":
-			fmt.Println("\t", dd.Data)
+			// fmt.Println("\t", dd.Data)
 		case "span":
-			fmt.Println(dd.Data)
+			// fmt.Println(dd.Data)
 		case "p":
-			fmt.Println(dd.Data)
+			// fmt.Println(dd.Data)
 
 		}
 	}

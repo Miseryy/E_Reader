@@ -19,15 +19,15 @@ func newMainFrame() *mainFrame {
 
 func (m mainFrame) MakeFrame() tview.Primitive {
 	pages = tview.NewPages()
-	frames := view_frames{}
+	frames := &view_frames{}
 	read_book_ele = &read_book_element{}
 	pages.SetBackgroundColor(tcell.ColorBlack)
-	b_list := newBookList()
-	read_book := newReadBook()
-	frames.book_list = b_list.makeFrame()
-	frames.read_book = read_book.makeFrame()
+	frame_objects.book_list = newBookList()
+	frame_objects.read_book = newReadBook()
+	frames.book_list = frame_objects.book_list.makeFrame()
+	frames.read_book = frame_objects.read_book.makeFrame()
 
-	b_list.makeList()
+	frame_objects.book_list.makeList()
 
 	// app.SetFocus(book_list)
 	pages.AddPage(p_book_list_name, frames.book_list, true, true)

@@ -69,8 +69,9 @@ func (b *bookList) makeFrame() tview.Primitive {
 
 		e_reader = b.readers[row]
 		read_book_ele.text_view.Clear()
-
 		pages.SwitchToPage(p_read_frame_name)
+		frame_objects.read_book.refleshTreeView()
+
 		b.table.SetSelectable(true, false)
 
 	})
@@ -90,7 +91,7 @@ func (b *bookList) makeFrame() tview.Primitive {
 
 	frame.SetRows(0, 1).SetColumns(0)
 	frame.AddItem(b.table, 0, 0, 1, 1, 0, 0, true)
-	frame.AddItem(command_texts, 1, 0, 1, 1, 0, 0, true)
+	frame.AddItem(command_texts, 1, 0, 1, 1, 0, 0, false)
 
 	return frame
 }

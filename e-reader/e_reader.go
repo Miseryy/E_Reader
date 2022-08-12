@@ -211,7 +211,7 @@ func (self *EReader) setChapter(path string) error {
 		return err
 	}
 
-	ch := new(Chapter)
+	ch := &Chapter{}
 	xml.Unmarshal(b, ch)
 	self.pack.chapter = append(self.pack.chapter, ch)
 

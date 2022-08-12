@@ -17,12 +17,18 @@ type view_frames struct {
 	book_list tview.Primitive
 }
 
+type frameObjects struct {
+	read_book *readBook
+	book_list *bookList
+}
+
 var (
 	current_dir, _ = os.Getwd()
 	e_reader       = &ereader.EReader{}
 	read_book_ele  = &read_book_element{}
 	pages          = &tview.Pages{}
 	app            = &tview.Application{}
+	frame_objects  = &frameObjects{}
 )
 
 func Run() {

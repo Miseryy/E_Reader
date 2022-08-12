@@ -277,8 +277,10 @@ type Nav struct {
 		Type string `xml:"type,attr"`
 		H1   string `xml:"h1"`
 		Li   []struct {
+			ID string `xml:"id,attr"`
 			Li []struct {
-				A struct {
+				ID string `xml:"id,attr"`
+				A  struct {
 					Text string `xml:",chardata"`
 					Href string `xml:"href,attr"`
 				} `xml:"a"`
