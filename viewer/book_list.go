@@ -12,7 +12,8 @@ import (
 )
 
 type bookList struct {
-	table *tview.Table
+	table   *tview.Table
+	readers []*ereader.EReader
 }
 
 func newBookList() *bookList {
@@ -50,18 +51,25 @@ func _getEpubPaths(root string) ([]string, error) {
 
 func (b *bookList) makeFrame() tview.Primitive {
 	b.table = tview.NewTable()
+	b.table.SetSelectable(true, false)
+
 	b.table.Select(0, 0).SetFixed(1, 1).SetDoneFunc(func(key tcell.Key) {
 		if key == tcell.KeyTab {
 			pages.SwitchToPage(p_read_frame_name)
 		}
 
 		if key == tcell.KeyEnter {
-			b.table.SetSelectable(true, true)
 		}
 
 	}).SetSelectedFunc(func(row int, colm int) {
-		b.table.GetCell(row, colm).SetTextColor(tcell.ColorLimeGreen)
-		b.table.SetSelectable(false, false)
+		if row < 1 {
+			return
+		}
+
+		e_reader = b.readers[row]
+
+		pages.SwitchToPage(p_read_frame_name)
+		b.table.SetSelectable(true, false)
 
 	})
 
@@ -71,7 +79,7 @@ func (b *bookList) makeFrame() tview.Primitive {
 func (b *bookList) makeList() {
 	provisional_dir := "/home/owner/go/src/e_reader/epubs/"
 	book_paths, err := _getEpubPaths(provisional_dir)
-	readers := []*ereader.EReader{}
+	b.readers = []*ereader.EReader{}
 
 	for _, bpath := range book_paths {
 		reader := ereader.New()
@@ -81,7 +89,7 @@ func (b *bookList) makeList() {
 			continue
 		}
 
-		readers = append(readers, reader)
+		b.readers = append(b.readers, reader)
 	}
 
 	if err != nil {
@@ -89,17 +97,17 @@ func (b *bookList) makeList() {
 	}
 
 	head := strings.Split("Title,Creater,Publisher,Date,Language", ",")
-	rows := len(readers) + 1 // +1 head
+	rows := len(b.readers) + 1 // +1 head
 	cols := len(head)
 
 	for r := 0; r < rows; r++ {
 		var param_list []string
 		if r > 0 {
-			param_list = append(param_list, readers[r-1].GetContent().Metadata.Title)
-			param_list = append(param_list, readers[r-1].GetContent().Metadata.Creator)
-			param_list = append(param_list, readers[r-1].GetContent().Metadata.Publisher)
-			param_list = append(param_list, readers[r-1].GetContent().Metadata.Date)
-			param_list = append(param_list, readers[r-1].GetContent().Metadata.Language)
+			param_list = append(param_list, b.readers[r-1].GetContent().Metadata.Title)
+			param_list = append(param_list, b.readers[r-1].GetContent().Metadata.Creator)
+			param_list = append(param_list, b.readers[r-1].GetContent().Metadata.Publisher)
+			param_list = append(param_list, b.readers[r-1].GetContent().Metadata.Date)
+			param_list = append(param_list, b.readers[r-1].GetContent().Metadata.Language)
 		}
 
 		for c := 0; c < cols; c++ {
@@ -117,5 +125,7 @@ func (b *bookList) makeList() {
 					SetTextColor(color).SetAlign(tview.AlignLeft))
 		}
 	}
+
+	app.SetFocus(b.table)
 
 }
