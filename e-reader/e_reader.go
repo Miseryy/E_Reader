@@ -17,17 +17,24 @@ const (
 )
 
 type EReader struct {
-	files      map[string]*zip.File
-	chapter    []string
-	navPath    []*navParam
-	dir        string
-	middle_dir string
+	files           map[string]*zip.File
+	chapter         []string
+	navPath         []*navParam
+	dir             string
+	middle_dir      string
+	file_path       string
+	tableOfContents []*tableOfContents
 	pack
 }
 
 type navParam struct {
 	name string
 	path string
+}
+
+type tableOfContents struct {
+	ChapterName string
+	ChapterPath string
 }
 
 type pack struct {
@@ -43,6 +50,7 @@ func New() *EReader {
 
 func (self *EReader) OpenEpub(file_path string) {
 	f, err := os.Open(file_path)
+	self.file_path = file_path
 
 	if err != nil {
 		panic(err)
@@ -230,8 +238,12 @@ func (self EReader) GetNav() Nav {
 	return *self.pack.nav
 }
 
-func (self EReader) GetChapters() []*Chapter {
+func (self *EReader) GetChapters() []*Chapter {
 	return self.pack.chapter
+}
+
+func (self *EReader) GetFilePath() string {
+	return self.file_path
 }
 
 func (self EReader) openFile(path string) ([]byte, error) {

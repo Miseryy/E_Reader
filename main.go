@@ -313,7 +313,7 @@ func OpenFile(files map[string]*zip.File, path string) ([]byte, error) {
 
 func test3() {
 	r := ereader.New()
-	r.OpenEpub("./epubs/ebpaj-viewsamples.epub")
+	r.OpenEpub("./epubs/gon_sample.epub")
 
 	err := r.InitContainer()
 	if err != nil {
@@ -331,29 +331,32 @@ func test3() {
 		return
 	}
 
-	chap := r.GetChapters()[5]
-	fmt.Println(len(r.GetChapters()))
+	fmt.Println(r.GetNav().Nav[0].Li[0].A.Href)
+
+	chap := r.GetChapters()[1]
+	// fmt.Println(len(chap))
 	data := chap.Body.Data
 	d := ereader.GetTagHead(data)
 	_ = d
+	// fmt.Println(d)
 
-	for _, dd := range d {
-		if len(dd.Data) == 0 {
-			continue
-		}
+	// for _, dd := range d {
+	// 	if len(dd.Data) == 0 {
+	// 		continue
+	// 	}
 
-		switch dd.Tag {
-		case "":
-			// fmt.Println(dd.Data)
-		case "h1", "h2", "h3", "h4":
-			// fmt.Println("\t", dd.Data)
-		case "span":
-			// fmt.Println(dd.Data)
-		case "p":
-			// fmt.Println(dd.Data)
+	// 	switch dd.Tag {
+	// 	case "":
+	// 		// fmt.Println(dd.Data)
+	// 	case "h1", "h2", "h3", "h4":
+	// 		// fmt.Println("\t", dd.Data)
+	// 	case "span":
+	// 		// fmt.Println(dd.Data)
+	// 	case "p":
+	// 		// fmt.Println(dd.Data)
 
-		}
-	}
+	// 	}
+	// }
 
 	// fmt.Println(d)
 	// removeTag(data)

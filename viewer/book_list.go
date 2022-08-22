@@ -67,7 +67,7 @@ func (b *bookList) makeFrame() tview.Primitive {
 			return
 		}
 
-		e_reader = b.readers[row]
+		e_reader = b.readers[row-1]
 		read_book_ele.text_view.Clear()
 		pages.SwitchToPage(p_read_frame_name)
 		frame_objects.read_book.refleshTreeView()
