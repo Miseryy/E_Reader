@@ -25,13 +25,14 @@ type frameObjects struct {
 }
 
 var (
-	current_dir, _ = os.Getwd()
-	e_reader       = &ereader.EReader{}
-	read_book_ele  = &read_book_element{}
-	pages          = &tview.Pages{}
-	app            = &tview.Application{}
-	frame_objects  = &frameObjects{}
-	frames         = &view_frames{}
+	current_dir, _  = os.Getwd()
+	e_reader        = &ereader.EReader{}
+	read_book_ele   = &read_book_element{}
+	pages           = &tview.Pages{}
+	app             = &tview.Application{}
+	frame_objects   = &frameObjects{}
+	frames          = &view_frames{}
+	selected_toc_no = 0
 )
 
 func Run() {

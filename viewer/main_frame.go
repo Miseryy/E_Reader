@@ -38,9 +38,9 @@ func (m mainFrame) MakeFrame() tview.Primitive {
 	pages.AddPage(p_toc_name, frames.toc, true, false)
 
 	pages.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		name, _ := pages.GetFrontPage()
 		switch event.Key() {
 		case tcell.KeyTab:
-			name, _ := pages.GetFrontPage()
 			switch name {
 			case p_read_frame_name:
 				pages.SwitchToPage(p_book_list_name)
@@ -48,6 +48,12 @@ func (m mainFrame) MakeFrame() tview.Primitive {
 				pages.SwitchToPage(p_read_frame_name)
 			case p_toc_name:
 				pages.SwitchToPage(p_read_frame_name)
+			}
+
+		case tcell.KeyEnter:
+			switch name {
+			case p_read_frame_name:
+
 			}
 
 		}
