@@ -82,6 +82,7 @@ func (b *bookList) makeFrame() tview.Primitive {
 			pages.SwitchToPage(p_read_frame_name)
 
 		}
+
 		return event
 	})
 

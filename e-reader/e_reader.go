@@ -238,13 +238,9 @@ func (self *EReader) GetChapterText(path string) (string, error) {
 		}
 
 		switch dd.Tag {
-		case "":
-			data += fmt.Sprintf("%s\n", dd.Data)
-		case "h1", "h2", "h3", "h4":
+		case "h1", "h2", "h3", "h4", "h5", "h6":
 			data += fmt.Sprintf("\t%s\n", dd.Data)
-		case "span":
-			data += fmt.Sprintf("%s\n", dd.Data)
-		case "p":
+		default:
 			data += fmt.Sprintf("%s\n", dd.Data)
 
 		}

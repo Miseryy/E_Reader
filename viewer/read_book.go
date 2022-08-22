@@ -19,7 +19,7 @@ func (r *readBook) makeFrame() tview.Primitive {
 	read_book_ele.table_contents.SetBorder(true)
 
 	read_book_ele.text_view = tview.NewTextView()
-	read_book_ele.text_view.SetText("sdfafa").SetBorder(true)
+	read_book_ele.text_view.SetBorder(true)
 	read_book_ele.text_view.SetScrollable(true)
 
 	command_text_view := tview.NewTextView()
@@ -33,6 +33,18 @@ func (r *readBook) makeFrame() tview.Primitive {
 			pages.SwitchToPage(p_book_list_name)
 
 		}
+
+		switch event.Rune() {
+		case 't':
+			app.SetFocus(read_book_ele.table_contents)
+
+		case 'r':
+			app.SetFocus(read_book_ele.text_view)
+
+		case 'Q':
+			app.Stop()
+		}
+
 		return event
 	})
 
@@ -49,20 +61,11 @@ func (r *readBook) makeTreeView() {
 	e_reader.MakeChapters()
 	chaps := e_reader.GetChapters()
 	_ = chaps
-	read_book_ele.table_contents.SetBorder(true)
 	nav := e_reader.GetNav()
 
 	root := tview.NewTreeNode(nav.Title).SetColor(tcell.ColorRed).SetReference("ref")
 
 	read_book_ele.table_contents = tview.NewTreeView().SetRoot(root).SetCurrentNode(root)
-
-	// for _, d := range nav.Nav {
-	// 	for _, l1 := range d.Li {
-	// 		n := tview.NewTreeNode(l1.A.Href).SetReference(l1.A.Href).SetSelectable(true)
-	// 		root.AddChild(n)
-
-	// 	}
-	// }
 
 	for _, d := range e_reader.GetTableOfContents() {
 		n := tview.NewTreeNode(d.ChapterName).SetReference(d.ChapterPath).SetSelectable(true)
@@ -83,6 +86,7 @@ func (r *readBook) makeTreeView() {
 		app.SetFocus(read_book_ele.text_view)
 		// n := tview.NewTreeNode("test2").SetReference("ref").SetSelectable(true)
 		// root.AddChild(n)
+
 	})
 
 }
