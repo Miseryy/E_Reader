@@ -69,21 +69,12 @@ func (b *bookList) makeFrame() tview.Primitive {
 
 		e_reader = b.readers[row-1]
 		read_book_ele.text_view.Clear()
-		pages.SwitchToPage(p_read_frame_name)
-		frame_objects.read_book.refleshTreeView()
+		pages.SwitchToPage(p_toc_name)
+		frame_objects.toc.refleshTreeView()
 
 		b.table.SetSelectable(true, false)
+		app.SetFocus(frames.toc)
 
-	})
-
-	frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
-		switch event.Key() {
-		case tcell.KeyTab:
-			pages.SwitchToPage(p_read_frame_name)
-
-		}
-
-		return event
 	})
 
 	command_texts.SetDynamicColors(true).SetRegions(true)
@@ -146,7 +137,5 @@ func (b *bookList) makeList() {
 					SetTextColor(color).SetAlign(tview.AlignLeft))
 		}
 	}
-
-	app.SetFocus(b.table)
 
 }

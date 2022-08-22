@@ -15,11 +15,13 @@ type read_book_element struct {
 type view_frames struct {
 	read_book tview.Primitive
 	book_list tview.Primitive
+	toc       tview.Primitive
 }
 
 type frameObjects struct {
 	read_book *readBook
 	book_list *bookList
+	toc       *tableOfContents
 }
 
 var (
@@ -29,6 +31,7 @@ var (
 	pages          = &tview.Pages{}
 	app            = &tview.Application{}
 	frame_objects  = &frameObjects{}
+	frames         = &view_frames{}
 )
 
 func Run() {
