@@ -207,10 +207,50 @@ func (self *EReader) MakeChapters() error {
 			p = self.dir + "/" + self.middle_dir + "/" + p
 
 		}
-		self.setChapter(p)
+
+		toc := tableOfContents{}
+		toc.ChapterName = nav.name
+		toc.ChapterPath = p
+
+		self.tableOfContents = append(self.tableOfContents, &toc)
+
+		// self.setChapter(p)
 	}
 
 	return nil
+}
+
+func (self *EReader) GetChapterText(path string) (string, error) {
+	b, err := self.openFile(path)
+	if err != nil {
+		return "", err
+	}
+
+	ch := &Chapter{}
+	xml.Unmarshal(b, ch)
+	// self.pack.chapter = append(self.pack.chapter, ch)
+	d := GetTagHead(ch.Body.Data)
+
+	var data string
+	for _, dd := range d {
+		if len(dd.Data) == 0 {
+			continue
+		}
+
+		switch dd.Tag {
+		case "":
+			data += fmt.Sprintf("%s\n", dd.Data)
+		case "h1", "h2", "h3", "h4":
+			data += fmt.Sprintf("\t%s\n", dd.Data)
+		case "span":
+			data += fmt.Sprintf("%s\n", dd.Data)
+		case "p":
+			data += fmt.Sprintf("%s\n", dd.Data)
+
+		}
+	}
+
+	return data, nil
 }
 
 func (self *EReader) setChapter(path string) error {
@@ -244,6 +284,10 @@ func (self *EReader) GetChapters() []*Chapter {
 
 func (self *EReader) GetFilePath() string {
 	return self.file_path
+}
+
+func (self *EReader) GetTableOfContents() []*tableOfContents {
+	return self.tableOfContents
 }
 
 func (self EReader) openFile(path string) ([]byte, error) {

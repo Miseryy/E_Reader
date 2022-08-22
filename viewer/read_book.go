@@ -20,6 +20,7 @@ func (r *readBook) makeFrame() tview.Primitive {
 
 	read_book_ele.text_view = tview.NewTextView()
 	read_book_ele.text_view.SetText("sdfafa").SetBorder(true)
+	read_book_ele.text_view.SetScrollable(true)
 
 	command_text_view := tview.NewTextView()
 	command_text_view.SetDynamicColors(true).SetRegions(true)
@@ -55,17 +56,33 @@ func (r *readBook) makeTreeView() {
 
 	read_book_ele.table_contents = tview.NewTreeView().SetRoot(root).SetCurrentNode(root)
 
-	for _, d := range nav.Nav {
-		for _, l1 := range d.Li {
-			n := tview.NewTreeNode(l1.A.Href).SetReference(l1.A.Href).SetSelectable(true)
-			root.AddChild(n)
+	// for _, d := range nav.Nav {
+	// 	for _, l1 := range d.Li {
+	// 		n := tview.NewTreeNode(l1.A.Href).SetReference(l1.A.Href).SetSelectable(true)
+	// 		root.AddChild(n)
 
-		}
+	// 	}
+	// }
+
+	for _, d := range e_reader.GetTableOfContents() {
+		n := tview.NewTreeNode(d.ChapterName).SetReference(d.ChapterPath).SetSelectable(true)
+		root.AddChild(n)
 	}
 
 	read_book_ele.table_contents.SetSelectedFunc(func(node *tview.TreeNode) {
-		n := tview.NewTreeNode("test2").SetReference("ref").SetSelectable(true)
-		root.AddChild(n)
+		read_book_ele.text_view.Clear()
+		ref := node.GetReference().(string)
+
+		text, e := e_reader.GetChapterText(ref)
+		if e != nil {
+			read_book_ele.text_view.SetText(e.Error())
+			return
+		}
+
+		read_book_ele.text_view.SetText(text)
+		app.SetFocus(read_book_ele.text_view)
+		// n := tview.NewTreeNode("test2").SetReference("ref").SetSelectable(true)
+		// root.AddChild(n)
 	})
 
 }

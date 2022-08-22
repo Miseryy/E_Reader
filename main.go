@@ -331,13 +331,15 @@ func test3() {
 		return
 	}
 
-	fmt.Println(r.GetNav().Nav[0].Li[0].A.Href)
+	// fmt.Println(r.GetNav().Nav[0].Li[0].A.Href)
+	// fmt.Println(r.GetTableOfContents())
+	fmt.Println(r.GetTableOfContents()[0])
 
-	chap := r.GetChapters()[1]
-	// fmt.Println(len(chap))
-	data := chap.Body.Data
-	d := ereader.GetTagHead(data)
-	_ = d
+	// chap := r.GetChapters()[0]
+	// // fmt.Println(len(chap))
+	// data := chap.Body.Data
+	// d := ereader.GetTagHead(data)
+	// _ = d
 	// fmt.Println(d)
 
 	// for _, dd := range d {
