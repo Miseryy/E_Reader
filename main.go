@@ -333,7 +333,20 @@ func test3() {
 
 	// fmt.Println(r.GetNav().Nav[0].Li[0].A.Href)
 	// fmt.Println(r.GetTableOfContents())
-	fmt.Println(r.GetTableOfContents()[0])
+	// fmt.Println(r.GetToCs()[0])
+
+	r.TocSetIte(2)
+	for r.HasTocNext() {
+		m := r.TocNext()
+
+		fmt.Println(m.ChapterName)
+
+	}
+
+	// c := r.GetToCAt(4)
+	// fmt.Println(c.ChapterName)
+	// c = r.TocNext()
+	// fmt.Println(c.ChapterName)
 
 	// chap := r.GetChapters()[0]
 	// // fmt.Println(len(chap))

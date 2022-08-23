@@ -29,16 +29,19 @@ func (t *tableOfContents) makeTreeView() {
 
 	read_book_ele.table_contents = tview.NewTreeView().SetRoot(root).SetCurrentNode(root)
 
-	for _, d := range e_reader.GetTableOfContents() {
-		n := tview.NewTreeNode(d.ChapterName).SetReference(d.ChapterPath).SetSelectable(true)
+	for i, d := range e_reader.GetToCs() {
+		n := tview.NewTreeNode(d.ChapterName).SetReference(i).SetSelectable(true)
 		root.AddChild(n)
 	}
 
 	read_book_ele.table_contents.SetSelectedFunc(func(node *tview.TreeNode) {
 		read_book_ele.text_view.Clear()
-		ref := node.GetReference().(string)
+		no := node.GetReference().(int)
 
-		text, e := e_reader.GetChapterText(ref)
+		e_reader.TocSetIte(no)
+		toc := e_reader.TocNext()
+
+		text, e := e_reader.GetChapterText(toc.ChapterPath)
 		if e != nil {
 			read_book_ele.text_view.SetText(e.Error())
 			return

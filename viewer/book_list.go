@@ -137,5 +137,4 @@ func (b *bookList) makeList() {
 					SetTextColor(color).SetAlign(tview.AlignLeft))
 		}
 	}
-
 }

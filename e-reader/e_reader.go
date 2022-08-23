@@ -24,6 +24,7 @@ type EReader struct {
 	middle_dir      string
 	file_path       string
 	tableOfContents []*tableOfContents
+	iterator        *ToCIterator
 	pack
 }
 
@@ -44,13 +45,55 @@ type pack struct {
 	chapter   []*Chapter
 }
 
-func New() *EReader {
-	return &EReader{}
+type ToCIterator struct {
+	e_reader *EReader
+	idx      int
 }
 
-func (self *EReader) OpenEpub(file_path string) {
+func (c *ToCIterator) HasNext() bool {
+	if c.idx < c.e_reader.GetToCSize() {
+		return true
+	}
+	return false
+}
+
+func (c *ToCIterator) Next() *tableOfContents {
+	item := c.e_reader.GetToCAt(c.idx)
+	c.idx++
+	return item
+}
+
+func (c *ToCIterator) Befor() *tableOfContents {
+	item := c.e_reader.GetToCAt(c.idx)
+	c.idx--
+	return item
+}
+
+func (c *ToCIterator) Get(idx int) *tableOfContents {
+	if c.e_reader.GetToCSize() <= idx {
+		return nil
+	}
+	c.idx = idx
+	return c.e_reader.tableOfContents[c.idx]
+}
+
+func (c *ToCIterator) SetIte(idx int) {
+	c.idx = idx
+}
+
+func New() *EReader {
+	m := &EReader{
+		iterator: &ToCIterator{},
+	}
+
+	m.iterator.e_reader = m
+
+	return m
+}
+
+func (e *EReader) OpenEpub(file_path string) {
 	f, err := os.Open(file_path)
-	self.file_path = file_path
+	e.file_path = file_path
 
 	if err != nil {
 		panic(err)
@@ -66,91 +109,91 @@ func (self *EReader) OpenEpub(file_path string) {
 		return
 	}
 
-	self.files = make(map[string]*zip.File)
+	e.files = make(map[string]*zip.File)
 	for _, ff := range z.File {
-		self.files[ff.Name] = ff
+		e.files[ff.Name] = ff
 	}
 
-	// self.InitContainer()
-	// self.MakeChapters()
+	// e.InitContainer()
+	// e.MakeChapters()
 
-	// self.setChapter(path)
+	// e.setChapter(path)
 	// fmt.Println(path)
-	// fmt.Println(len(self.Package.Chapter))
-	// fmt.Println(self.Package.Chapter[5].Body.Data)
-	// for _, v := range self.Package.Chapter {
+	// fmt.Println(len(e.Package.Chapter))
+	// fmt.Println(e.Package.Chapter[5].Body.Data)
+	// for _, v := range e.Package.Chapter {
 	// 	fmt.Println(v.Title)
 	// }
-	// // fmt.Println(self.Package.Chapter[0].Body.Data)
-	// dd := strings.Split(self.Package.Chapter[0].Body.Data, "\n")
+	// // fmt.Println(e.Package.Chapter[0].Body.Data)
+	// dd := strings.Split(e.Package.Chapter[0].Body.Data, "\n")
 	// fmt.Println(dd)
 
-	// fmt.Println(self.Package.Chapter[0].Title)
+	// fmt.Println(e.Package.Chapter[0].Title)
 
 }
 
-func (self *EReader) setContainer() error {
-	b, err := self.openFile(meta_container_path)
+func (e *EReader) setContainer() error {
+	b, err := e.openFile(meta_container_path)
 	if err != nil {
 		return err
 	}
 
 	container := new(Container)
 	xml.Unmarshal(b, container)
-	self.pack.container = container
+	e.pack.container = container
 
 	return nil
 }
 
-func (self *EReader) setContent(path string) error {
-	b, err := self.openFile(path)
+func (e *EReader) setContent(path string) error {
+	b, err := e.openFile(path)
 	if err != nil {
 		return err
 	}
 
 	content := new(Content)
 	xml.Unmarshal(b, content)
-	self.pack.content = content
+	e.pack.content = content
 
 	return nil
 
 }
 
-func (self *EReader) setNav(path string) error {
-	b, err := self.openFile(path)
+func (e *EReader) setNav(path string) error {
+	b, err := e.openFile(path)
 	if err != nil {
 		return err
 	}
 
 	nav := new(Nav)
 	xml.Unmarshal(b, nav)
-	self.pack.nav = nav
+	e.pack.nav = nav
 
 	return nil
 
 }
 
-func (self *EReader) InitContainer() error {
-	err := self.setContainer()
+func (e *EReader) InitContainer() error {
+	err := e.setContainer()
 	if err != nil {
 		return err
 	}
 
-	full_path := self.pack.container.Rootfiles[0].Rootfile.FullPath
-	err = self.setContent(full_path)
+	full_path := e.pack.container.Rootfiles[0].Rootfile.FullPath
+	err = e.setContent(full_path)
 	if err != nil {
 		return err
 	}
 
-	self.dir = strings.Split(full_path, "/")[0]
+	e.dir = strings.Split(full_path, "/")[0]
 
 	return nil
 }
 
-func (self *EReader) MakeChapters() error {
+func (e *EReader) MakeChapters() error {
 	var nav_path string
 	var chapter_path_href string
-	for _, i := range self.pack.content.Items {
+	for _, i := range e.pack.content.Items {
 		if i.ID == "nav" || i.Properties == "nav" {
 			nav_path = i.Href
 		}
@@ -164,19 +207,19 @@ func (self *EReader) MakeChapters() error {
 		}
 	}
 
-	self.middle_dir = strings.Split(chapter_path_href, "/")[0]
+	e.middle_dir = strings.Split(chapter_path_href, "/")[0]
 
 	if len(nav_path) < 1 {
 		fmt.Println("error")
 		return errors.New("Can't open")
 	}
 
-	err := self.setNav(self.dir + "/" + nav_path)
+	err := e.setNav(e.dir + "/" + nav_path)
 	if err != nil {
 		return err
 	}
 
-	for _, n := range self.pack.nav.Nav {
+	for _, n := range e.pack.nav.Nav {
 		if n.Type != "toc" {
 			continue
 		}
@@ -186,25 +229,25 @@ func (self *EReader) MakeChapters() error {
 				name: l.A.Text,
 				path: l.A.Href,
 			}
-			self.navPath = append(self.navPath, &tmp_param)
+			e.navPath = append(e.navPath, &tmp_param)
 			for _, ll := range l.Li {
 				tmp_param := navParam{
 					name: ll.A.Text,
 					path: ll.A.Href,
 				}
-				self.navPath = append(self.navPath, &tmp_param)
+				e.navPath = append(e.navPath, &tmp_param)
 			}
 		}
 	}
 
-	for _, nav := range self.navPath {
+	for _, nav := range e.navPath {
 		p := strings.Split(nav.path, "#")[0]
 		sp_array := strings.Split(p, "/")
 
 		if len(sp_array) > 1 {
-			p = self.dir + "/" + p
+			p = e.dir + "/" + p
 		} else {
-			p = self.dir + "/" + self.middle_dir + "/" + p
+			p = e.dir + "/" + e.middle_dir + "/" + p
 
 		}
 
@@ -212,23 +255,22 @@ func (self *EReader) MakeChapters() error {
 		toc.ChapterName = nav.name
 		toc.ChapterPath = p
 
-		self.tableOfContents = append(self.tableOfContents, &toc)
+		e.tableOfContents = append(e.tableOfContents, &toc)
 
-		// self.setChapter(p)
+		// e.setChapter(p)
 	}
 
 	return nil
 }
 
-func (self *EReader) GetChapterText(path string) (string, error) {
-	b, err := self.openFile(path)
+func (e *EReader) GetChapterText(path string) (string, error) {
+	b, err := e.openFile(path)
 	if err != nil {
 		return "", err
 	}
 
 	ch := &Chapter{}
 	xml.Unmarshal(b, ch)
-	// self.pack.chapter = append(self.pack.chapter, ch)
 	d := GetTagHead(ch.Body.Data)
 
 	var data string
@@ -242,52 +284,67 @@ func (self *EReader) GetChapterText(path string) (string, error) {
 			data += fmt.Sprintf("\t%s\n", dd.Data)
 		default:
 			data += fmt.Sprintf("%s\n", dd.Data)
-
 		}
 	}
 
 	return data, nil
 }
 
-func (self *EReader) setChapter(path string) error {
-	b, err := self.openFile(path)
+func (e *EReader) setChapter(path string) error {
+	b, err := e.openFile(path)
 	if err != nil {
 		return err
 	}
 
 	ch := &Chapter{}
 	xml.Unmarshal(b, ch)
-	self.pack.chapter = append(self.pack.chapter, ch)
+	e.pack.chapter = append(e.pack.chapter, ch)
 
 	return nil
 }
 
-func (self EReader) GetContainer() Container {
-	return *self.pack.container
+func (e EReader) GetToCSize() int {
+	return len(e.tableOfContents)
 }
 
-func (self EReader) GetContent() Content {
-	return *self.pack.content
+func (e EReader) GetContainer() Container {
+	return *e.pack.container
 }
 
-func (self EReader) GetNav() Nav {
-	return *self.pack.nav
+func (e EReader) GetContent() Content {
+	return *e.pack.content
 }
 
-func (self *EReader) GetChapters() []*Chapter {
-	return self.pack.chapter
+func (e EReader) GetNav() Nav {
+	return *e.pack.nav
 }
 
-func (self *EReader) GetFilePath() string {
-	return self.file_path
+func (e *EReader) GetFilePath() string {
+	return e.file_path
 }
 
-func (self *EReader) GetTableOfContents() []*tableOfContents {
-	return self.tableOfContents
+func (e *EReader) GetToCs() []*tableOfContents {
+	return e.tableOfContents
 }
 
-func (self EReader) openFile(path string) ([]byte, error) {
-	content_file, err := self.files[path].Open()
+func (e EReader) GetToCAt(idx int) *tableOfContents {
+	return e.iterator.Get(idx)
+}
+
+func (e EReader) HasTocNext() bool {
+	return e.iterator.HasNext()
+}
+
+func (e EReader) TocNext() *tableOfContents {
+	return e.iterator.Next()
+}
+
+func (e EReader) TocSetIte(idx int) {
+	e.iterator.SetIte(idx)
+}
+
+func (e EReader) openFile(path string) ([]byte, error) {
+	content_file, err := e.files[path].Open()
 	if err != nil {
 		return nil, err
 	}
