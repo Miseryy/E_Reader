@@ -57,6 +57,13 @@ func (c *ToCIterator) HasNext() bool {
 	return false
 }
 
+func (c *ToCIterator) HasBefore() bool {
+	if c.idx > 0 {
+		return true
+	}
+	return false
+}
+
 func (c *ToCIterator) Next() *tableOfContents {
 	item := c.e_reader.GetToCAt(c.idx)
 	c.idx++
@@ -64,8 +71,8 @@ func (c *ToCIterator) Next() *tableOfContents {
 }
 
 func (c *ToCIterator) Befor() *tableOfContents {
-	item := c.e_reader.GetToCAt(c.idx)
 	c.idx--
+	item := c.e_reader.GetToCAt(c.idx)
 	return item
 }
 
@@ -334,9 +341,16 @@ func (e EReader) GetToCAt(idx int) *tableOfContents {
 func (e EReader) HasTocNext() bool {
 	return e.iterator.HasNext()
 }
+func (e EReader) HasTocBefore() bool {
+	return e.iterator.HasBefore()
+}
 
 func (e EReader) TocNext() *tableOfContents {
 	return e.iterator.Next()
+}
+
+func (e EReader) TocBefore() *tableOfContents {
+	return e.iterator.Befor()
 }
 
 func (e EReader) TocSetIte(idx int) {

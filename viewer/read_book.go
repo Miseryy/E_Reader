@@ -1,6 +1,7 @@
 package viewer
 
 import (
+	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
 
@@ -10,6 +11,37 @@ type readBook struct {
 
 func newReadBook() *readBook {
 	return &readBook{}
+}
+
+func (r *readBook) nextPage() {
+	if !e_reader.HasTocNext() {
+		return
+	}
+	toc := e_reader.TocNext()
+	text, e := e_reader.GetChapterText(toc.ChapterPath)
+	if e != nil {
+		read_book_ele.text_view.SetText(e.Error())
+	}
+
+	read_book_ele.text_view.SetText(text)
+	read_book_ele.text_view.ScrollToBeginning()
+
+}
+
+func (r *readBook) beforePage() {
+	if !e_reader.HasTocBefore() {
+		return
+	}
+
+	toc := e_reader.TocBefore()
+	text, e := e_reader.GetChapterText(toc.ChapterPath)
+	if e != nil {
+		read_book_ele.text_view.SetText(e.Error())
+	}
+
+	read_book_ele.text_view.SetText(text)
+	read_book_ele.text_view.ScrollToBeginning()
+
 }
 
 func (r *readBook) makeFrame() tview.Primitive {
@@ -25,6 +57,16 @@ func (r *readBook) makeFrame() tview.Primitive {
 	command_text_view.SetDynamicColors(true).SetRegions(true)
 	command_string := "[red]<Tab>[white]::GoToBookList"
 	command_text_view.SetText(command_string)
+
+	r.frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch event.Rune() {
+		case 'n':
+			r.nextPage()
+		case 'b':
+			r.beforePage()
+		}
+		return event
+	})
 
 	r.frame.SetRows(0, 1).SetColumns(0)
 	r.frame.AddItem(read_book_ele.text_view, 0, 0, 1, 2, 0, 0, false)

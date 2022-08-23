@@ -48,7 +48,9 @@ func (t *tableOfContents) makeTreeView() {
 		}
 
 		read_book_ele.text_view.SetText(text)
+		read_book_ele.text_view.ScrollToBeginning()
 		pages.SwitchToPage(p_read_frame_name)
+		app.SetFocus(read_book_ele.text_view)
 
 	})
 
