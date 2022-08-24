@@ -36,7 +36,13 @@ func (t *tableOfContents) makeTreeView() {
 
 	read_book_ele.table_contents.SetSelectedFunc(func(node *tview.TreeNode) {
 		read_book_ele.text_view.Clear()
-		no := node.GetReference().(int)
+		var no int
+		switch val := node.GetReference().(type) {
+		case int:
+			no = val
+		default:
+			return
+		}
 
 		e_reader.TocSetIte(no)
 		toc := e_reader.TocNext()

@@ -28,7 +28,6 @@ func _getEpubPaths(root string) ([]string, error) {
 			return err
 		}
 
-		// r, err := regexp.MatchString(".epub", info.Name())
 		sp := strings.Split(info.Name(), ".")
 
 		if err != nil {

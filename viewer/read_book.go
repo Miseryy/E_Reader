@@ -14,10 +14,10 @@ func newReadBook() *readBook {
 }
 
 func (r *readBook) nextPage() {
-	if !e_reader.HasTocNext() {
+	toc := e_reader.TocNext()
+	if toc == nil {
 		return
 	}
-	toc := e_reader.TocNext()
 	text, e := e_reader.GetChapterText(toc.ChapterPath)
 	if e != nil {
 		read_book_ele.text_view.SetText(e.Error())
@@ -29,11 +29,12 @@ func (r *readBook) nextPage() {
 }
 
 func (r *readBook) beforePage() {
-	if !e_reader.HasTocBefore() {
+
+	toc := e_reader.TocPrev()
+	if toc == nil {
 		return
 	}
 
-	toc := e_reader.TocBefore()
 	text, e := e_reader.GetChapterText(toc.ChapterPath)
 	if e != nil {
 		read_book_ele.text_view.SetText(e.Error())
@@ -55,7 +56,7 @@ func (r *readBook) makeFrame() tview.Primitive {
 
 	command_text_view := tview.NewTextView()
 	command_text_view.SetDynamicColors(true).SetRegions(true)
-	command_string := "[red]<Tab>[white]::GoToBookList"
+	command_string := "[red]<Tab>[white]::GoToBookList [red]<p>[white]::TableOfContents"
 	command_text_view.SetText(command_string)
 
 	r.frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

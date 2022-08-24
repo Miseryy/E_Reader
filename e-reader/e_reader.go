@@ -51,28 +51,28 @@ type ToCIterator struct {
 }
 
 func (c *ToCIterator) HasNext() bool {
-	if c.idx < c.e_reader.GetToCSize() {
-		return true
-	}
-	return false
+	return c.idx < c.e_reader.GetToCSize()
 }
 
-func (c *ToCIterator) HasBefore() bool {
-	if c.idx > 0 {
-		return true
-	}
-	return false
+func (c *ToCIterator) HasPrev() bool {
+	return c.idx > 0
 }
 
 func (c *ToCIterator) Next() *tableOfContents {
 	item := c.e_reader.GetToCAt(c.idx)
 	c.idx++
+	if c.idx >= c.e_reader.GetToCSize()-1 {
+		c.idx = c.e_reader.GetToCSize() - 1
+	}
 	return item
 }
 
-func (c *ToCIterator) Befor() *tableOfContents {
-	c.idx--
+func (c *ToCIterator) Prev() *tableOfContents {
 	item := c.e_reader.GetToCAt(c.idx)
+	c.idx--
+	if c.idx < 0 {
+		c.idx = 0
+	}
 	return item
 }
 
@@ -120,22 +120,6 @@ func (e *EReader) OpenEpub(file_path string) {
 	for _, ff := range z.File {
 		e.files[ff.Name] = ff
 	}
-
-	// e.InitContainer()
-	// e.MakeChapters()
-
-	// e.setChapter(path)
-	// fmt.Println(path)
-	// fmt.Println(len(e.Package.Chapter))
-	// fmt.Println(e.Package.Chapter[5].Body.Data)
-	// for _, v := range e.Package.Chapter {
-	// 	fmt.Println(v.Title)
-	// }
-	// // fmt.Println(e.Package.Chapter[0].Body.Data)
-	// dd := strings.Split(e.Package.Chapter[0].Body.Data, "\n")
-	// fmt.Println(dd)
-
-	// fmt.Println(e.Package.Chapter[0].Title)
 
 }
 
@@ -264,7 +248,6 @@ func (e *EReader) MakeChapters() error {
 
 		e.tableOfContents = append(e.tableOfContents, &toc)
 
-		// e.setChapter(p)
 	}
 
 	return nil
@@ -334,27 +317,40 @@ func (e *EReader) GetToCs() []*tableOfContents {
 	return e.tableOfContents
 }
 
-func (e EReader) GetToCAt(idx int) *tableOfContents {
+func (e *EReader) GetToCAt(idx int) *tableOfContents {
+	if idx < 0 {
+		return nil
+	}
+
+	if idx >= e.GetToCSize() {
+		return nil
+	}
+
 	return e.iterator.Get(idx)
 }
 
 func (e EReader) HasTocNext() bool {
 	return e.iterator.HasNext()
 }
-func (e EReader) HasTocBefore() bool {
-	return e.iterator.HasBefore()
+
+func (e EReader) HasTocPrev() bool {
+	return e.iterator.HasPrev()
 }
 
 func (e EReader) TocNext() *tableOfContents {
 	return e.iterator.Next()
 }
 
-func (e EReader) TocBefore() *tableOfContents {
-	return e.iterator.Befor()
+func (e EReader) TocPrev() *tableOfContents {
+	return e.iterator.Prev()
 }
 
-func (e EReader) TocSetIte(idx int) {
+func (e *EReader) TocSetIte(idx int) {
 	e.iterator.SetIte(idx)
+}
+
+func (e EReader) GetIdx() int {
+	return e.iterator.idx
 }
 
 func (e EReader) openFile(path string) ([]byte, error) {

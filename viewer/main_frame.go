@@ -32,7 +32,6 @@ func (m mainFrame) MakeFrame() tview.Primitive {
 
 	frame_objects.book_list.makeList()
 
-	// app.SetFocus(book_list)
 	pages.AddPage(p_book_list_name, frames.book_list, true, true)
 	pages.AddPage(p_read_frame_name, frames.read_book, true, false)
 	pages.AddPage(p_toc_name, frames.toc, true, false)
@@ -55,7 +54,6 @@ func (m mainFrame) MakeFrame() tview.Primitive {
 			case p_read_frame_name:
 
 			}
-
 		}
 
 		switch event.Rune() {
@@ -69,9 +67,6 @@ func (m mainFrame) MakeFrame() tview.Primitive {
 
 		return event
 	})
-
-	// main_frame.SetRows(0, 0).SetColumns(100, 0)
-	// main_frame.AddItem(b_list.makeFrame(), 0, 0, 1, 1, 0, 0, true)
 
 	return pages
 
