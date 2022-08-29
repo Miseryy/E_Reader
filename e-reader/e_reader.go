@@ -23,7 +23,7 @@ type EReader struct {
 	dir             string
 	middle_dir      string
 	file_path       string
-	tableOfContents []*tableOfContents
+	TableOfContents []*TableOfContents
 	iterator        *ToCIterator
 	pack
 }
@@ -33,7 +33,7 @@ type navParam struct {
 	path string
 }
 
-type tableOfContents struct {
+type TableOfContents struct {
 	ChapterName string
 	ChapterPath string
 }
@@ -55,10 +55,10 @@ func (c *ToCIterator) HasNext() bool {
 }
 
 func (c *ToCIterator) HasPrev() bool {
-	return c.idx > 0
+	return c.idx >= 0
 }
 
-func (c *ToCIterator) Next() *tableOfContents {
+func (c *ToCIterator) Next() *TableOfContents {
 	item := c.e_reader.GetToCAt(c.idx)
 	c.idx++
 	if c.idx >= c.e_reader.GetToCSize()-1 {
@@ -67,7 +67,7 @@ func (c *ToCIterator) Next() *tableOfContents {
 	return item
 }
 
-func (c *ToCIterator) Prev() *tableOfContents {
+func (c *ToCIterator) Prev() *TableOfContents {
 	item := c.e_reader.GetToCAt(c.idx)
 	c.idx--
 	if c.idx < 0 {
@@ -76,12 +76,12 @@ func (c *ToCIterator) Prev() *tableOfContents {
 	return item
 }
 
-func (c *ToCIterator) Get(idx int) *tableOfContents {
+func (c *ToCIterator) Get(idx int) *TableOfContents {
 	if c.e_reader.GetToCSize() <= idx {
 		return nil
 	}
 	c.idx = idx
-	return c.e_reader.tableOfContents[c.idx]
+	return c.e_reader.TableOfContents[c.idx]
 }
 
 func (c *ToCIterator) SetIte(idx int) {
@@ -103,16 +103,19 @@ func (e *EReader) OpenEpub(file_path string) {
 	e.file_path = file_path
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return
 	}
 
 	fi, err := f.Stat()
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
 	z, err := zip.NewReader(f, fi.Size())
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
@@ -201,7 +204,6 @@ func (e *EReader) MakeChapters() error {
 	e.middle_dir = strings.Split(chapter_path_href, "/")[0]
 
 	if len(nav_path) < 1 {
-		fmt.Println("error")
 		return errors.New("Can't open")
 	}
 
@@ -242,11 +244,11 @@ func (e *EReader) MakeChapters() error {
 
 		}
 
-		toc := tableOfContents{}
+		toc := TableOfContents{}
 		toc.ChapterName = nav.name
 		toc.ChapterPath = p
 
-		e.tableOfContents = append(e.tableOfContents, &toc)
+		e.TableOfContents = append(e.TableOfContents, &toc)
 
 	}
 
@@ -294,7 +296,7 @@ func (e *EReader) setChapter(path string) error {
 }
 
 func (e EReader) GetToCSize() int {
-	return len(e.tableOfContents)
+	return len(e.TableOfContents)
 }
 
 func (e EReader) GetContainer() Container {
@@ -313,11 +315,11 @@ func (e *EReader) GetFilePath() string {
 	return e.file_path
 }
 
-func (e *EReader) GetToCs() []*tableOfContents {
-	return e.tableOfContents
+func (e *EReader) GetToCs() []*TableOfContents {
+	return e.TableOfContents
 }
 
-func (e *EReader) GetToCAt(idx int) *tableOfContents {
+func (e *EReader) GetToCAt(idx int) *TableOfContents {
 	if idx < 0 {
 		return nil
 	}
@@ -337,11 +339,11 @@ func (e EReader) HasTocPrev() bool {
 	return e.iterator.HasPrev()
 }
 
-func (e EReader) TocNext() *tableOfContents {
+func (e EReader) TocNext() *TableOfContents {
 	return e.iterator.Next()
 }
 
-func (e EReader) TocPrev() *tableOfContents {
+func (e EReader) TocPrev() *TableOfContents {
 	return e.iterator.Prev()
 }
 

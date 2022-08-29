@@ -29,7 +29,6 @@ func (r *readBook) nextPage() {
 }
 
 func (r *readBook) beforePage() {
-
 	toc := e_reader.TocPrev()
 	if toc == nil {
 		return
@@ -55,8 +54,8 @@ func (r *readBook) makeFrame() tview.Primitive {
 	read_book_ele.text_view.SetScrollable(true)
 
 	command_text_view := tview.NewTextView()
-	command_text_view.SetDynamicColors(true).SetRegions(true)
-	command_string := "[red]<Tab>[white]::GoToBookList [red]<p>[white]::TableOfContents"
+    command_text_view.SetDynamicColors(true).SetRegions(true)
+    command_string := "[red]<Tab>[white]::GoToBookList [red]<p>[white]::TableOfContents [red]<n>[white]::NextPage [red]<b>[white]::PrevPage"
 	command_text_view.SetText(command_string)
 
 	r.frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

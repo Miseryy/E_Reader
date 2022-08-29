@@ -1,6 +1,8 @@
 package viewer
 
 import (
+	ereader "epub_test/e-reader"
+
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
 )
@@ -22,14 +24,69 @@ func (t *tableOfContents) makeFrame() tview.Primitive {
 
 }
 
+func (t *tableOfContents) noTocParam(root *tview.TreeNode) {
+	content := e_reader.GetContent()
+	items := content.Items
+	for i, d := range items {
+		if d.MediaType != "application/xhtml+xml" {
+			continue
+		}
+		n := tview.NewTreeNode(d.ID).SetReference(i).SetSelectable(true)
+		toc := ereader.TableOfContents{}
+		toc.ChapterName = d.ID
+		toc.ChapterPath = d.Href
+		e_reader.TableOfContents = append(e_reader.TableOfContents, &toc)
+		root.AddChild(n)
+	}
+
+	read_book_ele.table_contents.SetSelectedFunc(func(node *tview.TreeNode) {
+		read_book_ele.text_view.Clear()
+		var no int
+		switch val := node.GetReference().(type) {
+		case int:
+			no = val
+		default:
+			return
+		}
+
+		e_reader.TocSetIte(no)
+		toc := e_reader.TocNext()
+
+		text, e := e_reader.GetChapterText(toc.ChapterPath)
+		if e != nil {
+			read_book_ele.text_view.SetText(e.Error())
+			return
+		}
+
+		read_book_ele.text_view.SetText(text)
+		read_book_ele.text_view.ScrollToBeginning()
+		pages.SwitchToPage(p_read_frame_name)
+		app.SetFocus(read_book_ele.text_view)
+
+	})
+
+}
+
 func (t *tableOfContents) makeTreeView() {
 	e_reader.MakeChapters()
-	nav := e_reader.GetNav()
-	root := tview.NewTreeNode(nav.Title).SetColor(tcell.ColorRed).SetReference("title")
+
+	title := e_reader.GetContent().Metadata.Title
+
+	// if nav {
+	// 	return
+	// }
+
+	root := tview.NewTreeNode(title).SetColor(tcell.ColorRed).SetReference("title")
 
 	read_book_ele.table_contents = tview.NewTreeView().SetRoot(root).SetCurrentNode(root)
+	tocs := e_reader.GetToCs()
 
-	for i, d := range e_reader.GetToCs() {
+	if len(tocs) == 0 {
+		t.noTocParam(root)
+		return
+	}
+
+	for i, d := range tocs {
 		n := tview.NewTreeNode(d.ChapterName).SetReference(i).SetSelectable(true)
 		root.AddChild(n)
 	}
