@@ -1,8 +1,6 @@
 package main
 
-import (
-	"epub_test/viewer"
-)
+import "epub_reader/viewer"
 
 func main() {
 	viewer.Run()

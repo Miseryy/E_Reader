@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	ereader "epub_test/e-reader"
+	ereader "epub_reader/e-reader"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -67,6 +67,44 @@ func (b *bookList) makeFrame() tview.Primitive {
 		}
 
 		e_reader = b.readers[row-1]
+		// if e_reader.GetContent().Metadata.Title
+		find := false
+		err := filepath.Walk(current_dir, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+
+			if current_dir+"/"+e_reader.GetContent().Metadata.Title+".json" == path {
+				frame_objects.read_book.loadCurrentPosJson()
+				find = true
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			return
+		}
+
+		if find == true {
+			read_book_ele.text_view.Clear()
+			pages.SwitchToPage(p_read_frame_name)
+			frame_objects.toc.refleshTreeView()
+
+			toc := e_reader.TocNext()
+
+			text, e := e_reader.GetChapterText(toc.ChapterPath)
+			if e != nil {
+				read_book_ele.text_view.SetText(e.Error())
+				return
+			}
+
+			read_book_ele.text_view.SetText(text)
+			app.SetFocus(read_book_ele.text_view)
+
+			return
+		}
+
 		read_book_ele.text_view.Clear()
 		pages.SwitchToPage(p_toc_name)
 		frame_objects.toc.refleshTreeView()
@@ -88,7 +126,7 @@ func (b *bookList) makeFrame() tview.Primitive {
 }
 
 func (b *bookList) makeList() {
-	provisional_dir := "/home/owner/go/src/e_reader/epubs/"
+	provisional_dir := current_dir + "/epubs/" // "/home/owner/go/src/e_reader/epubs/"
 	book_paths, err := _getEpubPaths(provisional_dir)
 	b.readers = []*ereader.EReader{}
 

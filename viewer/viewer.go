@@ -1,7 +1,7 @@
 package viewer
 
 import (
-	ereader "epub_test/e-reader"
+	ereader "epub_reader/e-reader"
 	"os"
 
 	"github.com/rivo/tview"

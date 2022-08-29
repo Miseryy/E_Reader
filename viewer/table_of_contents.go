@@ -1,7 +1,7 @@
 package viewer
 
 import (
-	ereader "epub_test/e-reader"
+	ereader "epub_reader/e-reader"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"
@@ -50,32 +50,15 @@ func (t *tableOfContents) noTocParam(root *tview.TreeNode) {
 		}
 
 		e_reader.TocSetIte(no)
-		toc := e_reader.TocNext()
-
-		text, e := e_reader.GetChapterText(toc.ChapterPath)
-		if e != nil {
-			read_book_ele.text_view.SetText(e.Error())
-			return
-		}
-
-		read_book_ele.text_view.SetText(text)
-		read_book_ele.text_view.ScrollToBeginning()
-		pages.SwitchToPage(p_read_frame_name)
-		app.SetFocus(read_book_ele.text_view)
+		frame_objects.read_book.setTextView()
 
 	})
-
 }
 
 func (t *tableOfContents) makeTreeView() {
 	e_reader.MakeChapters()
 
 	title := e_reader.GetContent().Metadata.Title
-
-	// if nav {
-	// 	return
-	// }
-
 	root := tview.NewTreeNode(title).SetColor(tcell.ColorRed).SetReference("title")
 
 	read_book_ele.table_contents = tview.NewTreeView().SetRoot(root).SetCurrentNode(root)
@@ -102,21 +85,12 @@ func (t *tableOfContents) makeTreeView() {
 		}
 
 		e_reader.TocSetIte(no)
-		toc := e_reader.TocNext()
-
-		text, e := e_reader.GetChapterText(toc.ChapterPath)
-		if e != nil {
-			read_book_ele.text_view.SetText(e.Error())
-			return
-		}
-
-		read_book_ele.text_view.SetText(text)
+		frame_objects.read_book.setTextView()
 		read_book_ele.text_view.ScrollToBeginning()
 		pages.SwitchToPage(p_read_frame_name)
 		app.SetFocus(read_book_ele.text_view)
 
 	})
-
 }
 
 func (t *tableOfContents) refleshTreeView() {
