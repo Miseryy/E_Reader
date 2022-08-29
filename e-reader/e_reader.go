@@ -59,20 +59,20 @@ func (c *ToCIterator) HasPrev() bool {
 }
 
 func (c *ToCIterator) Next() *TableOfContents {
-	item := c.e_reader.GetToCAt(c.idx)
 	c.idx++
 	if c.idx >= c.e_reader.GetToCSize()-1 {
 		c.idx = c.e_reader.GetToCSize() - 1
 	}
+	item := c.e_reader.GetToCAt(c.idx)
 	return item
 }
 
 func (c *ToCIterator) Prev() *TableOfContents {
-	item := c.e_reader.GetToCAt(c.idx)
 	c.idx--
 	if c.idx <= 0 {
 		c.idx = 0
 	}
+	item := c.e_reader.GetToCAt(c.idx)
 	return item
 }
 
@@ -353,6 +353,10 @@ func (e *EReader) TocSetIte(idx int) {
 
 func (e EReader) GetIdx() int {
 	return e.iterator.idx
+}
+
+func (e EReader) GetCurrentContents() *TableOfContents {
+	return e.iterator.Get(e.iterator.idx)
 }
 
 func (e EReader) openFile(path string) ([]byte, error) {

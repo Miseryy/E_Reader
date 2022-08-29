@@ -22,7 +22,7 @@ func newReadBook() *readBook {
 }
 
 func (r *readBook) setTextView() {
-	toc := e_reader.TocNext()
+	toc := e_reader.GetCurrentContents()
 
 	text, e := e_reader.GetChapterText(toc.ChapterPath)
 	if e != nil {
@@ -104,7 +104,7 @@ func (r *readBook) loadCurrentPosJson() {
 		return
 	}
 
-	idx := json_data.Pos["idx"] - 1
+	idx := json_data.Pos["idx"]
 	row := json_data.Pos["row"]
 	colm := json_data.Pos["colm"]
 
@@ -124,7 +124,7 @@ func (r *readBook) makeFrame() tview.Primitive {
 
 	command_text_view := tview.NewTextView()
 	command_text_view.SetDynamicColors(true).SetRegions(true)
-	command_string := "[red]<Tab>[white]::GoToBookList [red]<p>[white]::TableOfContents [red]<n>[white]::NextPage [red]<b>[white]::PrevPage"
+	command_string := "[red]<Tab>[white]::GoToBookList [red]<p>[white]::TableOfContents [red]<n>[white]::NextPage [red]<b>[white]::PrevPage [red]<s>[white]::Save"
 	command_text_view.SetText(command_string)
 
 	r.frame.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {

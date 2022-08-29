@@ -67,7 +67,6 @@ func (b *bookList) makeFrame() tview.Primitive {
 		}
 
 		e_reader = b.readers[row-1]
-		// if e_reader.GetContent().Metadata.Title
 		find := false
 		err := filepath.Walk(current_dir, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
@@ -91,7 +90,7 @@ func (b *bookList) makeFrame() tview.Primitive {
 			pages.SwitchToPage(p_read_frame_name)
 			frame_objects.toc.refleshTreeView()
 
-			toc := e_reader.TocNext()
+			toc := e_reader.GetCurrentContents()
 
 			text, e := e_reader.GetChapterText(toc.ChapterPath)
 			if e != nil {
