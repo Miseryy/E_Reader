@@ -69,7 +69,7 @@ func (c *ToCIterator) Next() *TableOfContents {
 
 func (c *ToCIterator) Prev() *TableOfContents {
 	c.idx--
-	if c.idx <= 0 {
+	if c.idx < 0 {
 		c.idx = 0
 	}
 	item := c.e_reader.GetToCAt(c.idx)

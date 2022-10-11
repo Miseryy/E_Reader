@@ -40,6 +40,7 @@ func (r *readBook) nextPage() {
 	if toc == nil {
 		return
 	}
+
 	text, e := e_reader.GetChapterText(toc.ChapterPath)
 	if e != nil {
 		read_book_ele.text_view.SetText(e.Error())
